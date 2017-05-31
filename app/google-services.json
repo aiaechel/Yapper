@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "697144327350",
+    "firebase_url": "https://yapper-d1d04.firebaseio.com",
+    "project_id": "yapper-d1d04",
+    "storage_bucket": "yapper-d1d04.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:697144327350:android:a6a7b905093753f0",
+        "android_client_info": {
+          "package_name": "com.yapper.Yapper"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "697144327350-tfj1samafd502dhdfa4ngthr6obqqd5g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6VUZ3RZ8QFnWoG6S1m_6W4i7tGsTdw5M"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
