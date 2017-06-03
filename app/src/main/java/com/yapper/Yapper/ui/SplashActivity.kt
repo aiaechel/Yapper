@@ -5,8 +5,10 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
+
 import com.yapper.Yapper.R
 import com.yapper.Yapper.utils.ChatRoom
+
 
 class SplashActivity : AppCompatActivity() {
 
@@ -16,6 +18,6 @@ class SplashActivity : AppCompatActivity() {
 
         startActivity(Intent(this, ChatRoom::class.java))
 
+    }
 
-}
 }

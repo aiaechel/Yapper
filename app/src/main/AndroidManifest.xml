@@ -27,6 +27,7 @@
         <activity android:name=".utils.ChatRoom"
                   android:label=""
                   />
+
     </application>
 
 </manifest>
