@@ -2,10 +2,14 @@
 
 buildscript {
     repositories {
-        jcenter()
+        // You need to add the following repository to download the
+        // new plugin.
+        maven {
+            url 'https://maven.google.com'
+        }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0-alpha1'
+        classpath 'com.android.tools.build:gradle:3.0.0-alpha3'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
