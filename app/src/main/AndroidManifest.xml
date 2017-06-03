@@ -23,9 +23,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".MessageThreadActivity.MessageThreadActivity"
-                  android:label=""
-                  />
+        <activity
+            android:name=".chatrooms.ChatroomListActivity" />
     </application>
 
 </manifest>
