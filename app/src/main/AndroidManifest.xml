@@ -25,6 +25,10 @@
         </activity>
 
         <activity android:name=".ui.chatrooms.ChatroomListActivity" />
+
+        <activity android:name=".utils.ChatRoom"
+                  android:label=""
+                  />
     </application>
 
 </manifest>
