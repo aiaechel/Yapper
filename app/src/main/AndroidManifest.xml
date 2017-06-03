@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.yapper.Yapper.ui">
+          package="com.yapper.Yapper"
+    android:versionCode="1">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
@@ -23,7 +24,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".MessageThreadActivity.MessageThreadActivity"
+        <activity android:name=".utils.ChatRoom"
                   android:label=""
                   />
     </application>
