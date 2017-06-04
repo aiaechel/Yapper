@@ -21,6 +21,7 @@ class SplashActivity: AppCompatActivity() {
 
         val binding = DataBindingUtil.setContentView<SplashScreenBinding>(this, R.layout.splash_screen)
 
+
         binding.chatroomListButton.setOnClickListener {
             startActivity(Intent(this, ChatroomListActivity::class.java))
         }

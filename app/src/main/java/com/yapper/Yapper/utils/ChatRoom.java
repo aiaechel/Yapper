@@ -1,8 +1,8 @@
 package com.yapper.Yapper.utils;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -10,6 +10,7 @@ import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -19,19 +20,23 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.yapper.Yapper.R;
+import com.yapper.Yapper.models.chatrooms.Chatroom;
+import com.yapper.Yapper.ui.ProfileActivity;
+
 import org.jetbrains.annotations.Nullable;
-import org.w3c.dom.Text;
 
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -43,10 +48,10 @@ public class ChatRoom extends AppCompatActivity {
     private Button btn_send_msg;
     private EditText input_msg;
     private ScrollView scroll_view;
-    private DatabaseReference root;
+    private DatabaseReference chatrooms_root;
     private String temp_key;
 
-    private String user_id, room_id;
+    private String user_id, username, room_id;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,54 +62,90 @@ public class ChatRoom extends AppCompatActivity {
         input_msg = (EditText) findViewById(R.id.msg_input);
         scroll_view = (ScrollView) findViewById(R.id.scrollView);
 
-        // TODO: fill in the appropriate key for user_name and room_name later: getIntent().getExtras().get("")
-        user_id = "userID";
         room_id = "halp";
 
-        root = FirebaseDatabase.getInstance().getReference().child("chatrooms").child(room_id).child("messages");
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        user_id = user.getUid();
 
-        setTitle(room_id);
+        chatrooms_root = FirebaseDatabase.getInstance().getReference().child("chatrooms").child(room_id).child("messages");
 
-        btn_send_msg.setOnClickListener(new View.OnClickListener() {
+        //get username based on user_id retrieved from firebase auth
+        FirebaseDatabase.getInstance().getReference().child("users").child(user_id).child("user_name").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onClick(View view) {
-                Map<String, Object> messages = new HashMap<String, Object>();
-                temp_key = root.push().getKey();
-                root.updateChildren(messages);
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                username = (String) dataSnapshot.getValue();
 
-                DatabaseReference message_root = root.child(temp_key);
-                Map<String, Object> name_and_message = new HashMap<String, Object>();
-                name_and_message.put("username", user_id);
-                //TODO: generate timestamp
-                name_and_message.put("timestamp", DateFormat.getDateTimeInstance().format(new Date()));
-                name_and_message.put("body", input_msg.getText().toString());
+                // callback to fetch and display room name from firebase
+                FirebaseDatabase.getInstance().getReference().child("chatrooms").child(room_id).child("room_name").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        setTitle((String) dataSnapshot.getValue());
+                    }
 
-                message_root.updateChildren(name_and_message);
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
 
-                input_msg.setText("");
+                    }
+                });
 
-            }
-        });
 
-        root.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                append_chat(dataSnapshot);
-            }
+                btn_send_msg.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Map<String, Object> messages = new HashMap<String, Object>();
+                        temp_key = chatrooms_root.push().getKey();
+                        chatrooms_root.updateChildren(messages);
 
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                append_chat(dataSnapshot);
-            }
+                        DatabaseReference message_root = chatrooms_root.child(temp_key);
+                        Map<String, Object> name_and_message = new HashMap<String, Object>();
+                        name_and_message.put("user_name", username);
+                        Date date = new Date();
+                        name_and_message.put("timestamp", DateFormat.getTimeInstance().format(date));
+                        name_and_message.put("body", input_msg.getText().toString());
+                        name_and_message.put("user_id", user_id);
 
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                        message_root.updateChildren(name_and_message);
 
-            }
+                        input_msg.setText("");
 
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                    }
+                });
 
+                //iterates over each message in a chatroom
+                chatrooms_root.addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                        append_chat(dataSnapshot, username);
+
+                        //scroll to bottom
+                        scroll_view.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                scroll_view.fullScroll(ScrollView.FOCUS_DOWN);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
             }
 
             @Override
@@ -112,48 +153,72 @@ public class ChatRoom extends AppCompatActivity {
 
             }
         });
+
+
     }
 
-    private String chat_msg, chat_user_name, timestamp;
 
-    private void append_chat(DataSnapshot dataSnapshot) {
-        Iterator i = dataSnapshot.getChildren().iterator();
-        while(i.hasNext()) {
-            //get body, timestamp, and user in that order
-            chat_msg = (String) ((DataSnapshot)i.next()).getValue();
-            timestamp = (String) ((DataSnapshot)i.next()).getValue();
-            chat_user_name = (String) ((DataSnapshot)i.next()).getValue();
 
-            TextView text_view = new TextView(ChatRoom.this);
+    //append a single message to the message stream
+    private void append_chat(DataSnapshot dataSnapshot, String username) {
+        String chat_msg, chat_user_id, timestamp, chat_user_name;
 
-            //make user name clickable to go to their profile page
-            SpannableString ss = new SpannableString(chat_user_name + " (" + timestamp + "):\n" + chat_msg);
-            ss.setSpan(new MyClickableSpan(), 0, chat_user_name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        chat_msg = (String) dataSnapshot.child("body").getValue();
+        timestamp = (String) dataSnapshot.child("timestamp").getValue();
+        chat_user_id = (String) dataSnapshot.child("user_id").getValue();
+        chat_user_name = (String) dataSnapshot.child("user_name").getValue();
 
-            //TODO: update UI for message stream
-            text_view.setText(ss);
-            text_view.setMovementMethod(LinkMovementMethod.getInstance());
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            lp.setMargins(0, 0, 0, 10);
-            text_view.setLayoutParams(lp);
-            text_view.setBackgroundColor(Color.parseColor("#dddddd"));
-
-            layout.addView(text_view);
-            scroll_view.fullScroll(View.FOCUS_DOWN);
+        //avoid blank inputs
+        if(chat_msg.trim().equals("")) {
+            return;
         }
+
+        TextView text_view = new TextView(ChatRoom.this);
+
+        //make user name clickable to go to their profile page
+        SpannableString ss = new SpannableString(chat_user_name + " (" + timestamp + ")\n" + chat_msg);
+        ss.setSpan(new MyClickableSpan(chat_user_id), 1, chat_user_name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        //TODO: update UI for message stream
+        text_view.setText(ss);
+        text_view.setMovementMethod(LinkMovementMethod.getInstance());
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        //if messages are from the current user, use a lighter color and right alignment
+        if(username.equals(chat_user_name)) {
+            text_view.setBackgroundColor(Color.parseColor("#f0f0f0"));
+            text_view.setGravity(Gravity.RIGHT);
+        } else {
+            text_view.setBackgroundColor(Color.parseColor("#dddddd"));
+        }
+        lp.setMargins(0, 0, 0, 20);
+        text_view.setLayoutParams(lp);
+
+
+        layout.addView(text_view);
+
     }
 
-
+    void start_profile_intent(String user_id) {
+        Intent intent = new Intent(this , ProfileActivity.class);
+        intent.putExtra("user_id", user_id);
+        startActivity(intent);
+    }
 
     class MyClickableSpan extends ClickableSpan {
+        String user_id;
+
+        MyClickableSpan(String user_id) {
+            this.user_id = user_id;
+        }
+
         public void onClick(View text_view) {
-            //go to new activity
-            Toast.makeText(ChatRoom.this, "Clicked", Toast.LENGTH_SHORT).show();
+            //TODO: go to new activity instead of toast
+            start_profile_intent(user_id);
+            Toast.makeText(ChatRoom.this, user_id, Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void updateDrawState(TextPaint ds) {
-            ds.setColor(Color.BLACK);//set text color
             ds.setUnderlineText(false); // set to false to remove underline
         }
     }

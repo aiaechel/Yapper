@@ -15,6 +15,30 @@
       },
       "oauth_client": [
         {
+          "client_id": "697144327350-a15kh7qpepl0qj6lpqlri17spbrc4c2p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yapper.Yapper",
+            "certificate_hash": "a7ca2ede1d72b92c9fbdc69ac4aae70f312053a9"
+          }
+        },
+        {
+          "client_id": "697144327350-8re5h0f2q1qm8nt55urahf2kgpu6mt5l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yapper.Yapper",
+            "certificate_hash": "9398d74cb7313749eb233081a011c0d0ebbe252e"
+          }
+        },
+        {
+          "client_id": "697144327350-nc1j1s8pe9ir7jqgu06em4c0sg7k0r89.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yapper.Yapper",
+            "certificate_hash": "93fc675de81093919deedc2698899c12e25c408d"
+          }
+        },
+        {
           "client_id": "697144327350-mq5ue4n879cnmsrlfjcitplmvruf1qrl.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
