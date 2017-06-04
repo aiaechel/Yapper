@@ -1,5 +1,6 @@
 package com.yapper.Yapper.utils;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +27,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.yapper.Yapper.R;
+import com.yapper.Yapper.models.chatrooms.Chatroom;
+import com.yapper.Yapper.ui.ProfileActivity;
+
 import org.jetbrains.annotations.Nullable;
 
 import java.text.DateFormat;
@@ -60,8 +64,8 @@ public class ChatRoom extends AppCompatActivity {
         room_id = "halp";
 
         // TODO: get these from auth
-        user_id = "123456";
-        username = "jteo1";
+        user_id = "userID2";
+        username = "jteo2";
 
         chatrooms_root = FirebaseDatabase.getInstance().getReference().child("chatrooms").child(room_id).child("messages");
 
@@ -158,7 +162,7 @@ public class ChatRoom extends AppCompatActivity {
 
         //make user name clickable to go to their profile page
         SpannableString ss = new SpannableString(chat_user_name + " (" + timestamp + ")\n" + chat_msg);
-        ss.setSpan(new MyClickableSpan(chat_user_id), 0, chat_user_name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ss.setSpan(new MyClickableSpan(chat_user_id), 1, chat_user_name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         //TODO: update UI for message stream
         text_view.setText(ss);
@@ -179,7 +183,11 @@ public class ChatRoom extends AppCompatActivity {
 
     }
 
-
+    void start_profile_intent(String user_id) {
+        Intent intent = new Intent(this , ProfileActivity.class);
+        intent.putExtra("user_id", user_id);
+        startActivity(intent);
+    }
 
     class MyClickableSpan extends ClickableSpan {
         String user_id;
@@ -190,12 +198,12 @@ public class ChatRoom extends AppCompatActivity {
 
         public void onClick(View text_view) {
             //TODO: go to new activity instead of toast
+            start_profile_intent(user_id);
             Toast.makeText(ChatRoom.this, user_id, Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void updateDrawState(TextPaint ds) {
-            ds.setColor(Color.BLACK);//set text color
             ds.setUnderlineText(false); // set to false to remove underline
         }
     }

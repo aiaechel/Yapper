@@ -30,7 +30,10 @@ public class ProfileActivity extends AppCompatActivity {
         email_textview = (TextView) findViewById(R.id.EmailText);
         description_textview = (TextView) findViewById(R.id.DescriptionText);
 
-        profile_root = FirebaseDatabase.getInstance().getReference().child("users").child("userID");
+        Bundle extras = getIntent().getExtras();
+        String user_id = getIntent().getExtras().getString("user_id");
+
+        profile_root = FirebaseDatabase.getInstance().getReference().child("users").child(user_id);
 
         profile_root.addValueEventListener(new ValueEventListener() {
             @Override
