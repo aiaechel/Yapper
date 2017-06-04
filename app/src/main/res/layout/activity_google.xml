@@ -83,6 +83,8 @@
                 android:layout_weight="1"
                 android:text="@string/disconnect"
                 android:theme="@style/ThemeOverlay.MyDarkButton" />
+
+
         </LinearLayout>
 
     </RelativeLayout>

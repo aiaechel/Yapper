@@ -34,11 +34,11 @@
                   />
 
         <activity
-            android:name="com.yapper.Yapper.ui.GoogleSignInActivity"
+            android:name="com.yapper.Yapper.ui.signin.GoogleSignInActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name="com.yapper.Yapper.ui.BaseActivity"
+            android:name="com.yapper.Yapper.ui.signin.BaseActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
