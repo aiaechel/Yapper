@@ -16,7 +16,7 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.splash_screen)
 
-        startActivity(Intent(this, ChatRoom::class.java))
+        startActivity(Intent(this, GoogleSignInActivity::class.java))
 
     }
 
