@@ -5,8 +5,8 @@ const GeoFire = require('geofire');
 admin.initializeApp(functions.config().firebase);
 const geoFire = new GeoFire(admin.database().ref('/geofire'));
 
-// Take the query and json parameter passed to message and insert it into the
-// Realtime Database under the path /chatrooms/:roomId/messages/:pushId/
+// Add chatroom as a POST request
+// Mainly used for testing purposes
 exports.addChatroom = functions.https.onRequest((req, res) => {
   // Grab the text parameter.
   const name = req.body.name;
@@ -29,15 +29,18 @@ exports.saveChatroomToGeofire = functions.database.ref('/chatrooms/{pushId}/loca
       return geoFire.set(event.params.pushId, location);
     });
 
-// Take the query and json parameter passed to message and insert it into the
-// Realtime Database under the path /chatrooms/:roomId/messages/:pushId/
+// Take the json location and radius within body and retrive all nearby chatrooms
+// GET request using query string
+// Example: /getNearbyChatrooms?lat=-57.030000&lng=34.120000&rad=5
 exports.getNearbyChatrooms = functions.https.onRequest((req, res) => {
-  // Grab the text parameter.
-  const location = req.body.location;
+  // Parse Query String
+  const latitude = parseFloat(req.query.lat);
+  const longitude = parseFloat(req.query.lng);
+  const radius = parseFloat(req.query.rad);
 
   var geoQuery = geoFire.query({
-    center: [location.lat, location.lng],
-    radius: req.body.rad
+    center: [latitude, longitude],
+    radius: radius
   });
 
   var foundKeys = [];
@@ -48,9 +51,10 @@ exports.getNearbyChatrooms = functions.https.onRequest((req, res) => {
   });
 
   var onReadyRegistration = geoQuery.on("ready", function() {
-    console.log("*** Found " + foundKeys.length + " chatrooms! ***");
+    // cancel query now that all keys have been found
     geoQuery.cancel();
 
+    // map promises to retrieve all the chatroom data using the keys found in the area
     var promises = foundKeys.map(function(key, index) {
       return admin.database().ref('/chatrooms/' + key).once('value').then(snapshot => {
         var room_id = snapshot.key;
@@ -61,6 +65,7 @@ exports.getNearbyChatrooms = functions.https.onRequest((req, res) => {
       });
     });
 
+    // return json of data after resolve all promises
     Promise.all(promises).then(function() {
       res.json(foundChatrooms);
     });
