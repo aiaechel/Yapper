@@ -7,7 +7,7 @@
     tools:context="com.yapper.Yapper.ui.ProfileActivity">
 
     <ImageView
-        android:id="@+id/imageView4"
+        android:id="@+id/BackgroundImage"
         android:layout_width="0dp"
         android:layout_height="192dp"
         android:layout_marginTop="0dp"
@@ -18,20 +18,20 @@
         app:srcCompat="@android:color/holo_purple" />
 
     <ImageView
-        android:id="@+id/imageView5"
+        android:id="@+id/ProfileImage"
         android:layout_width="177dp"
         android:layout_height="140dp"
-        app:srcCompat="@drawable/profile_image"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView4"
         android:layout_marginBottom="0dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/BackgroundImage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/profile_image"
         tools:layout_editor_absoluteY="52dp" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/SendMessageButton"
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="166dp"
         android:layout_height="wrap_content"
@@ -46,36 +46,34 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/UserNameText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="32dp"
-        android:text="@string/profile_name"
         android:textAlignment="center"
         android:textSize="40sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView4"
+        app:layout_constraintTop_toBottomOf="@+id/BackgroundImage"
         tools:layout_editor_absoluteX="-7dp" />
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/EmailText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:text="@string/profile_email"
         android:textAlignment="center"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+        app:layout_constraintTop_toBottomOf="@+id/UserNameText" />
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/DescriptionText"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
@@ -84,9 +82,9 @@
         android:layout_marginTop="8dp"
         android:text="@string/profile_description"
         android:textAlignment="textStart"
-        app:layout_constraintBottom_toTopOf="@+id/button2"
+        app:layout_constraintBottom_toTopOf="@+id/SendMessageButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+        app:layout_constraintTop_toBottomOf="@+id/EmailText" />
 
 </android.support.constraint.ConstraintLayout>
