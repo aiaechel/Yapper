@@ -61,6 +61,8 @@ exports.getNearbyChatrooms = functions.https.onRequest((req, res) => {
 // Send notifications to users subscribed to chatroom
 exports.sendNotification = functions.database.ref('/chatrooms/{roomId}/messages/{messageId}')
   .onWrite(event => {
+    // TODO: Don't send notification on deletion
+
     const message = event.data.current.val();
     const senderName = message.user_name;
     const messageBody = message.body;
@@ -69,14 +71,12 @@ exports.sendNotification = functions.database.ref('/chatrooms/{roomId}/messages/
     const roomId = event.params.roomId;
 
     // get all users subscribed to chatroom
-    return admin.database().ref(`/users/${senderId}`).once('value').then(senderSnapshot => {
-      const senderPhoto = senderSnapshot.val().photo_url;
+    return admin.database().ref(`/chatrooms/${roomId}/subscribers`).orderByKey().once('value').then(snapshot => {
+      snapshot.forEach(childSnapshot => {
+        const subscriberId = childSnapshot.key;
+        const subscriberName = childSnapshot.val().user_name;
 
-      admin.database().ref(`/chatrooms/${roomId}/subscribers`).orderByKey().once('value').then(snapshot => {
-        snapshot.forEach(childSnapshot => {
-          const subscriberId = childSnapshot.key;
-          const subscriberName = childSnapshot.val().user_name;
-
+        if(subscriberId !== senderId) {
           // get instance ID for subscriber
           admin.database().ref(`/users/${subscriberId}`).once('value').then(subscriberSnapshot => {
             const subscriberInstanceId = subscriberSnapshot.val().instance_id;
@@ -99,7 +99,7 @@ exports.sendNotification = functions.database.ref('/chatrooms/{roomId}/messages/
                 console.log("Error sending message:", error);
               });
           });
-        });
+        }
       });
     });
   });
