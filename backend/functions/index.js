@@ -69,34 +69,37 @@ exports.sendNotification = functions.database.ref('/chatrooms/{roomId}/messages/
     const roomId = event.params.roomId;
 
     // get all users subscribed to chatroom
-    return admin.database().ref(`/chatrooms/${roomId}/subscribers`).orderByKey().once('value').then(snapshot => {
-      snapshot.forEach(childSnapshot => {
-        const subscriberId = childSnapshot.key;
-        const subscriberName = childSnapshot.val().user_name;
+    return admin.database().ref(`/users/${senderId}`).once('value').then(senderSnapshot => {
+      const senderPhoto = senderSnapshot.val().photo_url;
 
-        // get instance ID for subscriber
-        admin.database().ref(`/users/${subscriberId}`).once('value').then(subscriberSnapshot => {
-          const subscriberData = subscriberSnapshot.val();
-          const subscriberInstanceId = subscriberData.instance_id;
+      admin.database().ref(`/chatrooms/${roomId}/subscribers`).orderByKey().once('value').then(snapshot => {
+        snapshot.forEach(childSnapshot => {
+          const subscriberId = childSnapshot.key;
+          const subscriberName = childSnapshot.val().user_name;
 
-          // send notification to subscriber's instance ID
-          console.log('notifying ' + subscriberInstanceId + ' about ' + messageBody + ' from ' + senderName);
+          // get instance ID for subscriber
+          admin.database().ref(`/users/${subscriberId}`).once('value').then(subscriberSnapshot => {
+            const subscriberInstanceId = subscriberSnapshot.val().instance_id;
 
-          const payload = {
-            notification: {
-              title: subscriberName,
-              body: messageBody,
-              icon: "https://lh3.googleusercontent.com/-6d7gL_g2RYQ/AAAAAAAAAAI/AAAAAAAAAAA/AAyYBF71-Hizv1SUDXo94tHFcCwVtm-dKA/s32-c-mo/photo.jpg"
-            }
-          };
+            // send notification to subscriber's instance ID
+            console.log('notifying ' + subscriberInstanceId + ' about ' + messageBody + ' from ' + senderName);
 
-          admin.messaging().sendToDevice(subscriberInstanceId, payload)
-            .then(function (response) {
-              console.log("Successfully sent message:", response);
-            })
-            .catch(function (error) {
-              console.log("Error sending message:", error);
-            });
+            const payload = {
+              notification: {
+                title: subscriberName,
+                body: messageBody,
+                icon: senderPhoto
+              }
+            };
+
+            admin.messaging().sendToDevice(subscriberInstanceId, payload)
+              .then(function (response) {
+                console.log("Successfully sent message:", response);
+              })
+              .catch(function (error) {
+                console.log("Error sending message:", error);
+              });
+          });
         });
       });
     });

@@ -1,5 +1,6 @@
 package com.yapper.Yapper.ui;
 
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.yapper.Yapper.R;
 import com.yapper.Yapper.models.users.User;
@@ -79,6 +80,8 @@ public class GoogleSignInActivity extends BaseActivity implements
         // [START initialize_auth]
         mAuth = FirebaseAuth.getInstance();
         // [END initialize_auth]
+
+        databaseReference = FirebaseDatabase.getInstance().getReference();
     }
 
     // [START on_start_check_user]
@@ -106,6 +109,7 @@ public class GoogleSignInActivity extends BaseActivity implements
             } else {
                 // Google Sign In failed, update UI appropriately
                 // [START_EXCLUDE]
+                // TODO: Show error message
                 updateUI(null);
                 // [END_EXCLUDE]
             }
