@@ -25,6 +25,7 @@ import com.yapper.Yapper.models.chatrooms.Chatroom
 import com.yapper.Yapper.models.chatrooms.LatLng
 import com.yapper.Yapper.network.chatrooms.GetChatroomsService
 import com.yapper.Yapper.utils.ChatRoom
+import com.yapper.Yapper.utils.ChatRoom.ROOM_ID_KEY
 import com.yapper.Yapper.utils.LocationListener
 import com.yapper.Yapper.utils.RetrofitProvider
 import retrofit2.Call
@@ -75,9 +76,7 @@ class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by Blank
     override fun onClicked(view: View) {
         val chatroom = view.getTag() as Chatroom
         val intent = Intent(this, ChatRoom::class.java)
-
-        //TODO: change "data" to actual key
-        intent.putExtra("data", chatroom.id)
+        intent.putExtra(ROOM_ID_KEY, chatroom.id)
         startActivity(intent)
     }
 

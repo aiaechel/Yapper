@@ -44,6 +44,9 @@ import java.util.Map;
  */
 
 public class ChatRoom extends AppCompatActivity {
+
+    public static final String ROOM_ID_KEY = "room_id";
+
     private LinearLayout layout;
     private Button btn_send_msg;
     private EditText input_msg;
@@ -62,7 +65,11 @@ public class ChatRoom extends AppCompatActivity {
         input_msg = (EditText) findViewById(R.id.msg_input);
         scroll_view = (ScrollView) findViewById(R.id.scrollView);
 
-        room_id = "halp";
+        Intent args = getIntent();
+        room_id = args.getStringExtra(ROOM_ID_KEY);
+        if (room_id == null) {
+            room_id = "halp";
+        }
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         user_id = user.getUid();
