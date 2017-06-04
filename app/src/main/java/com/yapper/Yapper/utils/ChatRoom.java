@@ -2,8 +2,6 @@ package com.yapper.Yapper.utils;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
-import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -11,6 +9,7 @@ import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -19,7 +18,6 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -29,12 +27,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.yapper.Yapper.R;
 import org.jetbrains.annotations.Nullable;
-import org.w3c.dom.Text;
 
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -93,7 +89,8 @@ public class ChatRoom extends AppCompatActivity {
                 DatabaseReference message_root = chatrooms_root.child(temp_key);
                 Map<String, Object> name_and_message = new HashMap<String, Object>();
                 name_and_message.put("user_name", username);
-                name_and_message.put("timestamp", DateFormat.getDateTimeInstance().format(new Date()));
+                Date date = new Date();
+                name_and_message.put("timestamp", DateFormat.getTimeInstance().format(date));
                 name_and_message.put("body", input_msg.getText().toString());
                 name_and_message.put("user_id", user_id);
 
@@ -108,7 +105,7 @@ public class ChatRoom extends AppCompatActivity {
         chatrooms_root.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                append_chat(dataSnapshot);
+                append_chat(dataSnapshot, username);
 
                 //scroll to bottom
                 scroll_view.post(new Runnable() {
@@ -144,7 +141,7 @@ public class ChatRoom extends AppCompatActivity {
 
 
     //append a single message to the message stream
-    private void append_chat(DataSnapshot dataSnapshot) {
+    private void append_chat(DataSnapshot dataSnapshot, String username) {
         String chat_msg, chat_user_id, timestamp, chat_user_name;
 
         chat_msg = (String) dataSnapshot.child("body").getValue();
@@ -152,19 +149,31 @@ public class ChatRoom extends AppCompatActivity {
         chat_user_id = (String) dataSnapshot.child("user_id").getValue();
         chat_user_name = (String) dataSnapshot.child("user_name").getValue();
 
+        //avoid blank inputs
+        if(chat_msg.trim().equals("")) {
+            return;
+        }
+
         TextView text_view = new TextView(ChatRoom.this);
 
         //make user name clickable to go to their profile page
-        SpannableString ss = new SpannableString(chat_user_name + " (" + timestamp + "):\n" + chat_msg);
+        SpannableString ss = new SpannableString(chat_user_name + " (" + timestamp + ")\n" + chat_msg);
         ss.setSpan(new MyClickableSpan(chat_user_id), 0, chat_user_name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         //TODO: update UI for message stream
         text_view.setText(ss);
         text_view.setMovementMethod(LinkMovementMethod.getInstance());
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(0, 0, 0, 10);
+        //if messages are from the current user, use a lighter color and right alignment
+        if(username.equals(chat_user_name)) {
+            text_view.setBackgroundColor(Color.parseColor("#f0f0f0"));
+            text_view.setGravity(Gravity.RIGHT);
+        } else {
+            text_view.setBackgroundColor(Color.parseColor("#dddddd"));
+        }
+        lp.setMargins(0, 0, 0, 20);
         text_view.setLayoutParams(lp);
-        text_view.setBackgroundColor(Color.parseColor("#dddddd"));
+
 
         layout.addView(text_view);
 
