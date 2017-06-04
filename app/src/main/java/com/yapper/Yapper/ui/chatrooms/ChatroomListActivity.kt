@@ -29,10 +29,12 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class ChatroomListActivity: LifecycleActivity() {
+class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by BlankListeners() {
 
     private val LOCATION_PERMISSION = 107
     private val LOCATION_SETTING = 5
+
+    private val roomListFragment = RoomListFragment()
 
     private lateinit var binding: ChatroomListContainerBinding
     private lateinit var googleApiClient: GoogleApiClient
@@ -52,6 +54,9 @@ class ChatroomListActivity: LifecycleActivity() {
                 .addApi(LocationServices.API)
                 .build()
 
+        supportFragmentManager.beginTransaction()
+                .add(R.id.chatroom_main_content, roomListFragment)
+                .commit()
         checkLocationPermission()
     }
 
