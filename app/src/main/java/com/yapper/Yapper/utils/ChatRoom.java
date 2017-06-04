@@ -19,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -48,7 +49,7 @@ public class ChatRoom extends AppCompatActivity {
     private DatabaseReference chatrooms_root;
     private String temp_key;
 
-    private String user_id, room_id;
+    private String user_id, username, room_id;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,14 +60,15 @@ public class ChatRoom extends AppCompatActivity {
         input_msg = (EditText) findViewById(R.id.msg_input);
         scroll_view = (ScrollView) findViewById(R.id.scrollView);
 
-        // TODO: fill in the appropriate key for user_name and room_name later: getIntent().getExtras().get("")
-        user_id = "userID";
+        // TODO: fill in the appropriate key for room_name later: getIntent().getExtras().get("")
         room_id = "halp";
+        user_id = "123456";
+        username = "jteo1";
 
         chatrooms_root = FirebaseDatabase.getInstance().getReference().child("chatrooms").child(room_id).child("messages");
 
         // TODO: extract actual room name from room_id
-        setTitle(room_id);
+        setTitle("Home");
 
         btn_send_msg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,9 +79,10 @@ public class ChatRoom extends AppCompatActivity {
 
                 DatabaseReference message_root = chatrooms_root.child(temp_key);
                 Map<String, Object> name_and_message = new HashMap<String, Object>();
-                name_and_message.put("username", user_id);
+                name_and_message.put("user_name", username);
                 name_and_message.put("timestamp", DateFormat.getDateTimeInstance().format(new Date()));
                 name_and_message.put("body", input_msg.getText().toString());
+                name_and_message.put("user_id", user_id);
 
                 message_root.updateChildren(name_and_message);
 
@@ -124,26 +127,8 @@ public class ChatRoom extends AppCompatActivity {
 
         chat_msg = (String) dataSnapshot.child("body").getValue();
         timestamp = (String) dataSnapshot.child("timestamp").getValue();
-        chat_user_id = (String) dataSnapshot.child("username").getValue();
-        chat_user_name = "null?";
-
-        /*
-        //retrieve username from user_id
-        FirebaseDatabase.getInstance().getReference().child("users").child(chat_user_id).child("display_name").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.wtf("hi", (String)dataSnapshot.getValue());
-                chat_user_name = (String) dataSnapshot.getValue();
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-        */
+        chat_user_id = (String) dataSnapshot.child("user_id").getValue();
+        chat_user_name = (String) dataSnapshot.child("user_name").getValue();
 
         TextView text_view = new TextView(ChatRoom.this);
 
@@ -167,7 +152,7 @@ public class ChatRoom extends AppCompatActivity {
 
     class MyClickableSpan extends ClickableSpan {
         public void onClick(View text_view) {
-            //go to new activity
+            //TODO: go to new activity instead of toast
             Toast.makeText(ChatRoom.this, "Clicked", Toast.LENGTH_SHORT).show();
         }
 
