@@ -64,7 +64,7 @@ public class ChatRoom extends AppCompatActivity {
         input_msg = (EditText) findViewById(R.id.msg_input);
         scroll_view = (ScrollView) findViewById(R.id.scrollView);
 
-        room_id = "KlhgLIqpn7TRTJ7NBB0";
+        room_id = "halp";
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         user_id = user.getUid();
