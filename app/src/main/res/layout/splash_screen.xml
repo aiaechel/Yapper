@@ -1,19 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<layout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools">
+<ScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.yapper.Yapper.ui.SplashActivity">
-
-    <TextView
-        android:layout_width="wrap_content"
+    >
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        android:padding="16dp"
+        android:gravity="center_horizontal">
 
-</android.support.constraint.ConstraintLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hello World!"/>
+
+        <Button
+            android:id="@+id/chatroom_list_button"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="Chatroom List (Andrew)"
+            />
+
+        <Button
+            android:id="@+id/chatroom_button"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="Chatroom Thread (Justin)"
+            />
+
+    </LinearLayout>
+</ScrollView>
+</layout>
