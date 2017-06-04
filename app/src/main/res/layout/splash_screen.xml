@@ -33,6 +33,13 @@
             android:text="Chatroom Thread (Justin)"
             />
 
+        <Button
+            android:id="@+id/sign_in_button"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="Sign In (Sam)"
+            />
+
     </LinearLayout>
 </ScrollView>
 </layout>
