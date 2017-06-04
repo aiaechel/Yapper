@@ -13,7 +13,7 @@ import com.yapper.Yapper.databinding.SplashScreenBinding
 import com.yapper.Yapper.ui.chatrooms.ChatroomListActivity
 import com.yapper.Yapper.utils.ChatRoom
 
-class SplashActivity : AppCompatActivity() {
+class SplashActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

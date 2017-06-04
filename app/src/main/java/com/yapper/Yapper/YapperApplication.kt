@@ -3,11 +3,11 @@ package com.yapper.Yapper
 import android.app.Application
 import android.content.Context
 
-class YapperApplication : Application() {
+class YapperApplication: Application() {
 
     companion object {
 
-        private lateinit var context : Context
+        private lateinit var context: Context
 
         fun getApplicationContext() = context
     }

@@ -10,10 +10,10 @@ import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 
-class LocationListener(val googleApiClient: GoogleApiClient) : LiveData<Location>(), LocationListener, GoogleApiClient.OnConnectionFailedListener {
+class LocationListener(val googleApiClient: GoogleApiClient): LiveData<Location>(), LocationListener, GoogleApiClient.OnConnectionFailedListener {
     private var enabled = false
 
-    val locationRequest : LocationRequest
+    val locationRequest: LocationRequest
 
     init {
         locationRequest = LocationRequest()

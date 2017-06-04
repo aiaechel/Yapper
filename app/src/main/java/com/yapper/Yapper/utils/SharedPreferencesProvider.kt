@@ -6,7 +6,7 @@ import com.yapper.Yapper.YapperApplication
 
 class SharedPreferencesProvider {
     companion object {
-        val sharedPreferences : SharedPreferences by lazy {
+        val sharedPreferences: SharedPreferences by lazy {
             PreferenceManager.getDefaultSharedPreferences(YapperApplication.getApplicationContext())
         }
     }

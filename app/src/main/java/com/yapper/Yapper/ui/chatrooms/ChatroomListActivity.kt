@@ -23,14 +23,14 @@ import com.yapper.Yapper.databinding.ChatroomListContainerBinding
 import com.yapper.Yapper.models.chatrooms.Chatroom
 import com.yapper.Yapper.utils.LocationListener
 
-class ChatroomListActivity : LifecycleActivity() {
+class ChatroomListActivity: LifecycleActivity() {
 
     private val LOCATION_PERMISSION = 107
     private val LOCATION_SETTING = 5
 
-    private lateinit var binding : ChatroomListContainerBinding
-    private lateinit var googleApiClient : GoogleApiClient
-    private lateinit var viewModel : ChatroomListViewModel
+    private lateinit var binding: ChatroomListContainerBinding
+    private lateinit var googleApiClient: GoogleApiClient
+    private lateinit var viewModel: ChatroomListViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,16 +91,16 @@ class ChatroomListActivity : LifecycleActivity() {
     }
 }
 
-class ChatroomListViewModel : ViewModel() {
-    private val chatrooms : MutableLiveData<List<Chatroom>> = MutableLiveData<List<Chatroom>>()
+class ChatroomListViewModel: ViewModel() {
+    private val chatrooms: MutableLiveData<List<Chatroom>> = MutableLiveData<List<Chatroom>>()
 
-    private var locationListener : LocationListener? = null
+    private var locationListener: LocationListener? = null
 
-    fun getChatrooms() : LiveData<List<Chatroom>> {
+    fun getChatrooms(): LiveData<List<Chatroom>> {
         return chatrooms
     }
 
-    fun getLocationListener(googleApiClient: GoogleApiClient) : LocationListener {
+    fun getLocationListener(googleApiClient: GoogleApiClient): LocationListener {
         if (locationListener == null) {
             locationListener = LocationListener(googleApiClient)
         }
