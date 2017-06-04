@@ -56,7 +56,7 @@ exports.getNearbyChatrooms = functions.https.onRequest((req, res) => {
 
     // map promises to retrieve all the chatroom data using the keys found in the area
     var promises = foundKeys.map(function(key, index) {
-      return admin.database().ref('/chatrooms/' + key).once('value').then(snapshot => {
+      return admin.database().ref(`/chatrooms/${key}`).once('value').then(snapshot => {
         var room_id = snapshot.key;
         var data = snapshot.val();
 
