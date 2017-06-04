@@ -1,6 +1,8 @@
 package com.yapper.Yapper.ui;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.yapper.Yapper.R;
+import com.yapper.Yapper.models.users.User;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,6 +27,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DatabaseReference;
 
 /**
  * Demonstrate Firebase Authentication using a Google ID Token.
@@ -43,6 +46,8 @@ public class GoogleSignInActivity extends BaseActivity implements
     private GoogleApiClient mGoogleApiClient;
     private TextView mStatusTextView;
     private TextView mDetailTextView;
+
+    private DatabaseReference databaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,6 +129,7 @@ public class GoogleSignInActivity extends BaseActivity implements
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            addUserToDatabase(user);
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -174,6 +180,21 @@ public class GoogleSignInActivity extends BaseActivity implements
                         updateUI(null);
                     }
                 });
+    }
+
+    private void addUserToDatabase(FirebaseUser firebaseUser) {
+        String instanceId = FirebaseInstanceId.getInstance().getToken();
+        if (instanceId != null) {
+            User user = new User(
+                firebaseUser.getDisplayName() == null ? "" : firebaseUser.getDisplayName(), // full_name
+                firebaseUser.getDisplayName() == null ? "" : firebaseUser.getDisplayName(), // user_name
+                firebaseUser.getEmail() == null ? "" : firebaseUser.getEmail(), // email
+                firebaseUser.getPhotoUrl() == null ? "" : firebaseUser.getPhotoUrl().toString(), // full_name
+                instanceId
+            );
+
+            databaseReference.child("users").child(firebaseUser.getUid()).setValue(user);
+        }
     }
 
     private void updateUI(FirebaseUser user) {
