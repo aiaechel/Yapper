@@ -86,9 +86,8 @@ exports.sendNotification = functions.database.ref('/chatrooms/{roomId}/messages/
 
             const payload = {
               notification: {
-                title: subscriberName,
-                body: messageBody,
-                icon: senderPhoto
+                title: senderName,
+                body: messageBody
               }
             };
 
