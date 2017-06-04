@@ -56,3 +56,6 @@ captures/
 ehthumbs.db
 Thumbs.db
 .externalNativeBuild
+
+# node modules in backend
+node_modules/
