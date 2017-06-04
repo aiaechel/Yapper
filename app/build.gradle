@@ -53,6 +53,7 @@ dependencies {
     // library for networking
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     compile 'com.squareup.retrofit2:converter-gson:2.3.0'
+    compile 'com.squareup.okhttp3:logging-interceptor:3.4.1'
 
     // library for photo loading
     compile 'com.squareup.picasso:picasso:2.5.2'

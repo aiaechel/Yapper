@@ -21,7 +21,13 @@ import com.google.firebase.database.ValueEventListener
 import com.yapper.Yapper.R
 import com.yapper.Yapper.databinding.ChatroomListContainerBinding
 import com.yapper.Yapper.models.chatrooms.Chatroom
+import com.yapper.Yapper.models.chatrooms.LatLng
+import com.yapper.Yapper.network.chatrooms.GetChatroomsService
 import com.yapper.Yapper.utils.LocationListener
+import com.yapper.Yapper.utils.RetrofitProvider
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class ChatroomListActivity: LifecycleActivity() {
 
@@ -86,18 +92,27 @@ class ChatroomListActivity: LifecycleActivity() {
 
     fun observeLocation() {
         viewModel.getLocationListener(googleApiClient).observe(this, Observer {
-            viewModel.loadChatrooms()
+            viewModel.loadChatrooms(it)
         })
     }
 }
 
 class ChatroomListViewModel: ViewModel() {
     private val chatrooms: MutableLiveData<List<Chatroom>> = MutableLiveData<List<Chatroom>>()
+    private val chatroomsService: GetChatroomsService = RetrofitProvider.retrofit.create(GetChatroomsService::class.java)
 
     private var locationListener: LocationListener? = null
 
+    init {
+        chatrooms.value = ArrayList<Chatroom>()
+    }
+
     fun getChatrooms(): LiveData<List<Chatroom>> {
         return chatrooms
+    }
+
+    fun setChatrooms(rooms: List<Chatroom>?) {
+        chatrooms.value = rooms
     }
 
     fun getLocationListener(googleApiClient: GoogleApiClient): LocationListener {
@@ -107,23 +122,18 @@ class ChatroomListViewModel: ViewModel() {
         return locationListener!!
     }
 
-    fun loadChatrooms() {
-        val db = FirebaseDatabase.getInstance()
-        db.getReference().addListenerForSingleValueEvent(object: ValueEventListener {
-            override fun onDataChange(data: DataSnapshot?) {
-                //val test = data?.getValue(Chatroom::class.java)
-                val rooms = ArrayList<Chatroom>()
-                data?.child("chatrooms")?.children?.forEach {
-                    val room = it.getValue(Chatroom::class.java)
-                    room.id = it.key
-                    rooms += room
-                }
-                chatrooms.value = rooms
-                Log.d("TESTING", "pls")
-            }
+    fun loadChatrooms(location: Location?) {
+        location ?: return
+        // TODO: not default radius of 5
+        chatroomsService.getNearbyChatrooms(location.latitude, location.longitude, 5).enqueue(object : Callback<List<Chatroom>> {
 
-            override fun onCancelled(p0: DatabaseError?) {
-                Log.d("TESTING", "WTF")
+            override fun onResponse(call: Call<List<Chatroom>>?, response: Response<List<Chatroom>>?) {
+                if (response?.isSuccessful ?: false) {
+                    setChatrooms(response?.body())
+                }
+            }
+            override fun onFailure(call: Call<List<Chatroom>>?, t: Throwable?) {
+
             }
         })
     }

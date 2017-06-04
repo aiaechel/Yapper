@@ -25,6 +25,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.yapper.Yapper.R;
+import com.yapper.Yapper.models.chatrooms.LatLng;
+
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Text;
 

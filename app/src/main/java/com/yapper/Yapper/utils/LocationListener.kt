@@ -20,6 +20,7 @@ class LocationListener(val googleApiClient: GoogleApiClient): LiveData<Location>
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .setInterval(10000)
                 .setFastestInterval(5000)
+                .setSmallestDisplacement(100f)
     }
 
     @SuppressLint("MissingPermission")
