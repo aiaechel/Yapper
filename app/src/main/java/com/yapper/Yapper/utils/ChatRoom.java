@@ -62,13 +62,26 @@ public class ChatRoom extends AppCompatActivity {
 
         // TODO: fill in the appropriate key for room_name later: getIntent().getExtras().get("")
         room_id = "halp";
+
+        // TODO: get these from auth
         user_id = "123456";
         username = "jteo1";
 
         chatrooms_root = FirebaseDatabase.getInstance().getReference().child("chatrooms").child(room_id).child("messages");
 
-        // TODO: extract actual room name from room_id
-        setTitle("Home");
+        // callback to fetch and display room name from firebase
+        FirebaseDatabase.getInstance().getReference().child("chatrooms").child(room_id).child("room_name").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                setTitle((String) dataSnapshot.getValue());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
 
         btn_send_msg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,15 +104,24 @@ public class ChatRoom extends AppCompatActivity {
             }
         });
 
+        //iterates over each message in a chatroom
         chatrooms_root.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 append_chat(dataSnapshot);
+
+                //scroll to bottom
+                scroll_view.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        scroll_view.fullScroll(ScrollView.FOCUS_DOWN);
+                    }
+                });
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                append_chat(dataSnapshot);
+
             }
 
             @Override
@@ -134,7 +156,7 @@ public class ChatRoom extends AppCompatActivity {
 
         //make user name clickable to go to their profile page
         SpannableString ss = new SpannableString(chat_user_name + " (" + timestamp + "):\n" + chat_msg);
-        ss.setSpan(new MyClickableSpan(), 0, chat_user_name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ss.setSpan(new MyClickableSpan(chat_user_id), 0, chat_user_name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         //TODO: update UI for message stream
         text_view.setText(ss);
@@ -145,15 +167,21 @@ public class ChatRoom extends AppCompatActivity {
         text_view.setBackgroundColor(Color.parseColor("#dddddd"));
 
         layout.addView(text_view);
-        scroll_view.fullScroll(View.FOCUS_DOWN);
+
     }
 
 
 
     class MyClickableSpan extends ClickableSpan {
+        String user_id;
+
+        MyClickableSpan(String user_id) {
+            this.user_id = user_id;
+        }
+
         public void onClick(View text_view) {
             //TODO: go to new activity instead of toast
-            Toast.makeText(ChatRoom.this, "Clicked", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ChatRoom.this, user_id, Toast.LENGTH_SHORT).show();
         }
 
         @Override
