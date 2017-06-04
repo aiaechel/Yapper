@@ -12,8 +12,8 @@ class RoomListAdapter(val listeners: ChatroomClickListeners): RecyclerView.Adapt
     private var items = ArrayList<Chatroom>()
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ChatroomViewHolder {
-        val binding = ChatroomListItemBinding.inflate(LayoutInflater.from(parent?.context))
-        binding.listeners = BlankListeners()
+        val binding = ChatroomListItemBinding.inflate(LayoutInflater.from(parent?.context), parent, false)
+        binding.listeners = listeners
         return ChatroomViewHolder(binding)
     }
 
@@ -22,6 +22,11 @@ class RoomListAdapter(val listeners: ChatroomClickListeners): RecyclerView.Adapt
     }
 
     override fun getItemCount() = items.size
+
+    fun insertItem(room: Chatroom, position: Int) {
+        items.add(position, room)
+        notifyItemInserted(position)
+    }
 
     fun updateItems(rooms: List<Chatroom>?) {
         items.clear()
@@ -41,7 +46,7 @@ class ChatroomViewHolder(val chatroomBinding: ChatroomListItemBinding): Recycler
 }
 
 interface ChatroomClickListeners {
-    fun onClicked(view : View)
+    fun onClicked(view: View)
     fun onStarClicked()
 }
 

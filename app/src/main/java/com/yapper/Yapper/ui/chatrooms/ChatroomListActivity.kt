@@ -10,6 +10,7 @@ import android.location.Location
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.util.Log
+import android.view.View
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
@@ -23,6 +24,7 @@ import com.yapper.Yapper.databinding.ChatroomListContainerBinding
 import com.yapper.Yapper.models.chatrooms.Chatroom
 import com.yapper.Yapper.models.chatrooms.LatLng
 import com.yapper.Yapper.network.chatrooms.GetChatroomsService
+import com.yapper.Yapper.utils.ChatRoom
 import com.yapper.Yapper.utils.LocationListener
 import com.yapper.Yapper.utils.RetrofitProvider
 import retrofit2.Call
@@ -43,12 +45,7 @@ class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by Blank
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView<ChatroomListContainerBinding>(this, R.layout.chatroom_list_container)
-
         viewModel = ViewModelProviders.of(this).get(ChatroomListViewModel::class.java)
-        viewModel.getChatrooms().observe(this, Observer {
-            Log.d("TESTING", it.toString())
-        })
-
         googleApiClient = GoogleApiClient.Builder(this)
                 .enableAutoManage(this, null)
                 .addApi(LocationServices.API)
@@ -57,6 +54,7 @@ class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by Blank
         supportFragmentManager.beginTransaction()
                 .add(R.id.chatroom_main_content, roomListFragment)
                 .commit()
+
         checkLocationPermission()
     }
 
@@ -72,6 +70,15 @@ class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by Blank
         if (requestCode == LOCATION_PERMISSION && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
             checkLocationSettings()
         }
+    }
+
+    override fun onClicked(view: View) {
+        val chatroom = view.getTag() as Chatroom
+        val intent = Intent(this, ChatRoom::class.java)
+
+        //TODO: change "data" to actual key
+        intent.putExtra("data", chatroom.id)
+        startActivity(intent)
     }
 
     fun checkLocationPermission() {
