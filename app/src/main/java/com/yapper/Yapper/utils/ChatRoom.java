@@ -20,6 +20,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -61,8 +63,9 @@ public class ChatRoom extends AppCompatActivity {
         scroll_view = (ScrollView) findViewById(R.id.scrollView);
 
         room_id = "halp";
-        // TODO: get these from auth
-        user_id = "userID2";
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        user_id = user.getUid();
 
         chatrooms_root = FirebaseDatabase.getInstance().getReference().child("chatrooms").child(room_id).child("messages");
 
