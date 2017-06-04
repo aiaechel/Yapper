@@ -5,29 +5,14 @@ const GeoFire = require('geofire');
 admin.initializeApp(functions.config().firebase);
 const geoFire = new GeoFire(admin.database().ref('/geofire'));
 
-// Add chatroom as a POST request
-// Mainly used for testing purposes
-exports.addChatroom = functions.https.onRequest((req, res) => {
-  // Grab the text parameter.
-  const name = req.body.name;
-  const location = req.body.location;
-
-  // Generate Timestamp
-  const timestamp = admin.database.ServerValue.TIMESTAMP;
-
-  // Push it into the Realtime Database then send a response
-  const data = {timestamp: timestamp, name: name, location: location};
-  admin.database().ref('/chatrooms/').push(data).then(snapshot => {
-    res.send(200, "ok");
-  });
-});
 
 exports.saveChatroomToGeofire = functions.database.ref('/chatrooms/{pushId}/location')
-    .onWrite(event => {
-      const data_location = event.data.val();
-      const location = [data_location.lat, data_location.lng];
-      return geoFire.set(event.params.pushId, location);
-    });
+  .onWrite(event => {
+    const data_location = event.data.val();
+    const location = [data_location.lat, data_location.lng];
+    return geoFire.set(event.params.pushId, location);
+  });
+
 
 // Take the json location and radius within body and retrive all nearby chatrooms
 // GET request using query string
@@ -70,4 +55,67 @@ exports.getNearbyChatrooms = functions.https.onRequest((req, res) => {
       res.json(foundChatrooms);
     });
   })
+});
+
+
+// Send notifications to users subscribed to chatroom
+exports.sendNotification = functions.database.ref('/chatrooms/{roomId}/messages/{messageId}')
+  .onWrite(event => {
+    const message = event.data.current.val();
+    const senderName = message.user_name;
+    const messageBody = message.body;
+    const senderId = message.user_id;
+
+    const roomId = event.params.roomId;
+
+    // get all users subscribed to chatroom
+    return admin.database().ref(`/chatrooms/${roomId}/subscribers`).orderByKey().once('value').then(snapshot => {
+      snapshot.forEach(childSnapshot => {
+        const subscriberId = childSnapshot.key;
+        const subscriberName = childSnapshot.val().user_name;
+
+        // get instance ID for subscriber
+        admin.database().ref(`/users/${subscriberId}`).once('value').then(subscriberSnapshot => {
+          const subscriberData = subscriberSnapshot.val();
+          const subscriberInstanceId = subscriberData.instance_id;
+
+          // send notification to subscriber's instance ID
+          console.log('notifying ' + subscriberInstanceId + ' about ' + messageBody + ' from ' + senderName);
+
+          const payload = {
+            notification: {
+              title: subscriberName,
+              body: messageBody,
+              icon: "https://lh3.googleusercontent.com/-6d7gL_g2RYQ/AAAAAAAAAAI/AAAAAAAAAAA/AAyYBF71-Hizv1SUDXo94tHFcCwVtm-dKA/s32-c-mo/photo.jpg"
+            }
+          };
+
+          admin.messaging().sendToDevice(subscriberInstanceId, payload)
+            .then(function (response) {
+              console.log("Successfully sent message:", response);
+            })
+            .catch(function (error) {
+              console.log("Error sending message:", error);
+            });
+        });
+      });
+    });
+  });
+
+
+// Add chatroom as a POST request
+// Mainly used for testing purposes
+exports.addChatroom = functions.https.onRequest((req, res) => {
+  // Grab the text parameter.
+  const name = req.body.name;
+  const location = req.body.location;
+
+  // Generate Timestamp
+  const timestamp = admin.database.ServerValue.TIMESTAMP;
+
+  // Push it into the Realtime Database then send a response
+  const data = {timestamp: timestamp, name: name, location: location};
+  admin.database().ref('/chatrooms/').push(data).then(snapshot => {
+    res.send(200, "ok");
+  });
 });
