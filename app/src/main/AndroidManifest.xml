@@ -23,10 +23,23 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.chatrooms.ChatroomListActivity" />
-        <activity
-            android:name=".utils.ChatRoom"
-            android:label="" />
+
         <activity android:name=".ui.ProfileActivity"></activity>
+
+
+        <activity android:name=".utils.ChatRoom"
+                  android:label=""
+                  />
+
+        <activity
+            android:name="com.yapper.Yapper.ui.GoogleSignInActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+            android:name="com.yapper.Yapper.ui.BaseActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+
     </application>
 
 </manifest>

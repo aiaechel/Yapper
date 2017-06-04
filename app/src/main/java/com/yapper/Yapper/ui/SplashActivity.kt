@@ -13,6 +13,7 @@ import com.yapper.Yapper.databinding.SplashScreenBinding
 import com.yapper.Yapper.ui.chatrooms.ChatroomListActivity
 import com.yapper.Yapper.utils.ChatRoom
 
+
 class SplashActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,6 +27,9 @@ class SplashActivity: AppCompatActivity() {
         }
         binding.chatroomButton.setOnClickListener {
             startActivity(Intent(this, ChatRoom::class.java))
+        }
+        binding.signInButton.setOnClickListener {
+            startActivity(Intent(this, GoogleSignInActivity::class.java))
         }
     }
 
