@@ -45,7 +45,7 @@ exports.getNearbyChatrooms = functions.https.onRequest((req, res) => {
         var room_id = snapshot.key;
         var data = snapshot.val();
 
-        var data_json = {id: room_id, name: data.name, timestamp: data.timestamp, location: data.location};
+        var data_json = {id: room_id, room_name: data.room_name, timestamp: data.timestamp, location: data.location};
         foundChatrooms.push(data_json);
       });
     });
