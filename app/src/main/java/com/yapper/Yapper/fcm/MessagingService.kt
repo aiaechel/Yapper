@@ -22,8 +22,9 @@ class MessagingService : FirebaseMessagingService() {
                 .setContentTitle(title)
                 .setContentText(body)
 
-        // Gets an instance of the NotificationManager service
+        // Generate unique ID
         val mNotificationId = (Date().time / 1000L % Integer.MAX_VALUE).toInt()
+        // Gets an instance of the NotificationManager service
         val mNotifyMgr = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         mNotifyMgr.notify(mNotificationId, mBuilder.build())
