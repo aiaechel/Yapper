@@ -60,86 +60,98 @@ public class ChatRoom extends AppCompatActivity {
         input_msg = (EditText) findViewById(R.id.msg_input);
         scroll_view = (ScrollView) findViewById(R.id.scrollView);
 
-        // TODO: fill in the appropriate key for room_name later: getIntent().getExtras().get("")
         room_id = "halp";
-
         // TODO: get these from auth
         user_id = "userID2";
-        username = "jteo2";
 
         chatrooms_root = FirebaseDatabase.getInstance().getReference().child("chatrooms").child(room_id).child("messages");
 
-        // callback to fetch and display room name from firebase
-        FirebaseDatabase.getInstance().getReference().child("chatrooms").child(room_id).child("room_name").addListenerForSingleValueEvent(new ValueEventListener() {
+        //get username based on user_id retrieved from firebase auth
+        FirebaseDatabase.getInstance().getReference().child("users").child(user_id).child("user_name").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                setTitle((String) dataSnapshot.getValue());
-            }
+                username = (String) dataSnapshot.getValue();
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-
-        btn_send_msg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Map<String, Object> messages = new HashMap<String, Object>();
-                temp_key = chatrooms_root.push().getKey();
-                chatrooms_root.updateChildren(messages);
-
-                DatabaseReference message_root = chatrooms_root.child(temp_key);
-                Map<String, Object> name_and_message = new HashMap<String, Object>();
-                name_and_message.put("user_name", username);
-                Date date = new Date();
-                name_and_message.put("timestamp", DateFormat.getTimeInstance().format(date));
-                name_and_message.put("body", input_msg.getText().toString());
-                name_and_message.put("user_id", user_id);
-
-                message_root.updateChildren(name_and_message);
-
-                input_msg.setText("");
-
-            }
-        });
-
-        //iterates over each message in a chatroom
-        chatrooms_root.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                append_chat(dataSnapshot, username);
-
-                //scroll to bottom
-                scroll_view.post(new Runnable() {
+                // callback to fetch and display room name from firebase
+                FirebaseDatabase.getInstance().getReference().child("chatrooms").child(room_id).child("room_name").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void run() {
-                        scroll_view.fullScroll(ScrollView.FOCUS_DOWN);
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        setTitle((String) dataSnapshot.getValue());
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+
+                btn_send_msg.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Map<String, Object> messages = new HashMap<String, Object>();
+                        temp_key = chatrooms_root.push().getKey();
+                        chatrooms_root.updateChildren(messages);
+
+                        DatabaseReference message_root = chatrooms_root.child(temp_key);
+                        Map<String, Object> name_and_message = new HashMap<String, Object>();
+                        name_and_message.put("user_name", username);
+                        Date date = new Date();
+                        name_and_message.put("timestamp", DateFormat.getTimeInstance().format(date));
+                        name_and_message.put("body", input_msg.getText().toString());
+                        name_and_message.put("user_id", user_id);
+
+                        message_root.updateChildren(name_and_message);
+
+                        input_msg.setText("");
+
+                    }
+                });
+
+                //iterates over each message in a chatroom
+                chatrooms_root.addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                        append_chat(dataSnapshot, username);
+
+                        //scroll to bottom
+                        scroll_view.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                scroll_view.fullScroll(ScrollView.FOCUS_DOWN);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
                     }
                 });
             }
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
         });
+
+
     }
 
 
