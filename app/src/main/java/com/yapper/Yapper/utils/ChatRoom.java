@@ -33,8 +33,10 @@ import com.yapper.Yapper.models.chatrooms.Chatroom;
 import com.yapper.Yapper.ui.ProfileActivity;
 
 import org.jetbrains.annotations.Nullable;
+import org.joda.time.Instant;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,7 +64,7 @@ public class ChatRoom extends AppCompatActivity {
         input_msg = (EditText) findViewById(R.id.msg_input);
         scroll_view = (ScrollView) findViewById(R.id.scrollView);
 
-        room_id = "halp";
+        room_id = "KlhgLIqpn7TRTJ7NBB0";
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         user_id = user.getUid();
@@ -99,8 +101,7 @@ public class ChatRoom extends AppCompatActivity {
                         DatabaseReference message_root = chatrooms_root.child(temp_key);
                         Map<String, Object> name_and_message = new HashMap<String, Object>();
                         name_and_message.put("user_name", username);
-                        Date date = new Date();
-                        name_and_message.put("timestamp", DateFormat.getTimeInstance().format(date));
+                        name_and_message.put("timestamp", System.currentTimeMillis());
                         name_and_message.put("body", input_msg.getText().toString());
                         name_and_message.put("user_id", user_id);
 
@@ -164,7 +165,9 @@ public class ChatRoom extends AppCompatActivity {
         String chat_msg, chat_user_id, timestamp, chat_user_name;
 
         chat_msg = (String) dataSnapshot.child("body").getValue();
-        timestamp = (String) dataSnapshot.child("timestamp").getValue();
+        Date date = new Date((Long) dataSnapshot.child("timestamp").getValue());
+        SimpleDateFormat formatter = new SimpleDateFormat("hh:mm a");
+        timestamp = formatter.format(date);
         chat_user_id = (String) dataSnapshot.child("user_id").getValue();
         chat_user_name = (String) dataSnapshot.child("user_name").getValue();
 
