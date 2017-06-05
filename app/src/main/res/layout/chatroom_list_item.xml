@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:textColor="@android:color/white"
         android:textSize="24sp"
-        android:text="@{String.valueOf(chatroom.roomName.charAt(0)).toUpperCase()}"
+        android:text="@{String.valueOf(chatroom.roomName.isEmpty() ? '?' : chatroom.roomName.charAt(0)).toUpperCase()}"
         app:layout_constraintLeft_toLeftOf="@+id/chatroom_item_image"
         app:layout_constraintRight_toRightOf="@+id/chatroom_item_image"
         app:layout_constraintTop_toTopOf="@+id/chatroom_item_image"

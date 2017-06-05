@@ -36,6 +36,7 @@ class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by Blank
 
     private val LOCATION_PERMISSION = 107
     private val LOCATION_SETTING = 5
+    private val CHATROOM_CREATE_RESULT = 96;
 
     private val roomListFragment = RoomListFragment()
 
@@ -52,6 +53,10 @@ class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by Blank
                 .addApi(LocationServices.API)
                 .build()
 
+        binding.chatroomListFab.setOnClickListener {
+            startActivityForResult(Intent(this, ChatroomCreateActivity::class.java), CHATROOM_CREATE_RESULT)
+        }
+
         supportFragmentManager.beginTransaction()
                 .add(R.id.chatroom_main_content, roomListFragment)
                 .commit()
@@ -61,8 +66,17 @@ class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by Blank
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == LOCATION_SETTING && resultCode == Activity.RESULT_OK) {
-            observeLocation()
+        if (resultCode == Activity.RESULT_OK) {
+            when(requestCode) {
+                LOCATION_SETTING -> observeLocation()
+                CHATROOM_CREATE_RESULT -> {
+                    val newRoom = data?.getParcelableExtra<Chatroom>("data")
+                    if (newRoom != null) {
+                        viewModel.getChatrooms().value?.add(0, newRoom)
+                        openChatroom(newRoom)
+                    }
+                }
+            }
         }
     }
 
@@ -75,12 +89,16 @@ class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by Blank
 
     override fun onClicked(view: View) {
         val chatroom = view.getTag() as Chatroom
+        openChatroom(chatroom)
+    }
+
+    private fun openChatroom(room: Chatroom) {
         val intent = Intent(this, ChatRoom::class.java)
-        intent.putExtra(ROOM_ID_KEY, chatroom.id)
+        intent.putExtra(ROOM_ID_KEY, room.id)
         startActivity(intent)
     }
 
-    fun checkLocationPermission() {
+    private fun checkLocationPermission() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION), 107)
@@ -89,7 +107,7 @@ class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by Blank
         }
     }
 
-    fun checkLocationSettings() {
+    private fun checkLocationSettings() {
         val locationSettingsRequest = LocationSettingsRequest.Builder()
                 .addLocationRequest(viewModel.getLocationListener(googleApiClient).locationRequest)
                 .build()
@@ -101,7 +119,7 @@ class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by Blank
         }
     }
 
-    fun observeLocation() {
+    private fun observeLocation() {
         viewModel.getLocationListener(googleApiClient).observe(this, Observer {
             viewModel.loadChatrooms(it)
         })
@@ -109,7 +127,7 @@ class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by Blank
 }
 
 class ChatroomListViewModel: ViewModel() {
-    private val chatrooms: MutableLiveData<List<Chatroom>> = MutableLiveData<List<Chatroom>>()
+    private val chatrooms: MutableLiveData<MutableList<Chatroom>> = MutableLiveData<MutableList<Chatroom>>()
     private val chatroomsService: GetChatroomsService = RetrofitProvider.retrofit.create(GetChatroomsService::class.java)
 
     private var locationListener: LocationListener? = null
@@ -118,12 +136,17 @@ class ChatroomListViewModel: ViewModel() {
         chatrooms.value = ArrayList<Chatroom>()
     }
 
-    fun getChatrooms(): LiveData<List<Chatroom>> {
+    fun getChatrooms(): LiveData<MutableList<Chatroom>> {
         return chatrooms
     }
 
     fun setChatrooms(rooms: List<Chatroom>?) {
-        chatrooms.value = rooms
+        chatrooms.value?.let {
+            with(it) {
+                clear()
+                addAll(rooms ?: emptyList())
+            }
+        }
     }
 
     fun getLocationListener(googleApiClient: GoogleApiClient): LocationListener {
