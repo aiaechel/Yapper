@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
 
     <item
-        android:id="@+id/subscribe" android:icon="@android:drawable/ic_menu_add" app:showAsAction="always" android:title="add"/>
+        android:id="@+id/subscribe" android:icon="@drawable/ic_plus" app:showAsAction="always" android:title="add"/>
 
     <item
-        android:id="@+id/unsubscribe" android:icon="@android:drawable/ic_menu_close_clear_cancel" app:showAsAction="always" android:title="remove"/>
+        android:id="@+id/unsubscribe" android:icon="@drawable/ic_minus" app:showAsAction="always" android:title="remove"/>
 </menu>
