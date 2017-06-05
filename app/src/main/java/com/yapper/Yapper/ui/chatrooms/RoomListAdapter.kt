@@ -31,7 +31,9 @@ class RoomListAdapter(val listeners: ChatroomClickListeners): RecyclerView.Adapt
     fun updateItems(rooms: List<Chatroom>?) {
         items.clear()
         if (rooms != null) {
-            items.addAll(rooms)
+            items.addAll(rooms.sortedBy {
+                (if (it.isSubscribed) "-" else "") + it.id
+            })
         }
         notifyDataSetChanged()
     }
