@@ -32,6 +32,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.yapper.Yapper.R;
 import com.yapper.Yapper.ui.ProfileActivity;
+import com.yapper.Yapper.ui.chatrooms.ChatroomListActivity;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -56,6 +57,16 @@ public class ChatRoom extends AppCompatActivity {
     private String temp_key;
 
     private String user_id, username, room_id, room_name;
+
+    @Override
+    public void onBackPressed() {
+        if (isTaskRoot()) {
+            finish();
+            startActivity(new Intent(this, ChatroomListActivity.class));
+        } else {
+            super.onBackPressed();
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
