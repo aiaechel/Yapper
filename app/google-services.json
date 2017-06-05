@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "697144327350-a15kh7qpepl0qj6lpqlri17spbrc4c2p.apps.googleusercontent.com",
+          "client_id": "697144327350-4a3opru1k0qf4leh44rqlfll7g869g4e.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.yapper.Yapper",
-            "certificate_hash": "a7ca2ede1d72b92c9fbdc69ac4aae70f312053a9"
+            "certificate_hash": "2d63679a4c774319b4b735f3f4685ddfab92256e"
           }
         },
         {
@@ -49,6 +49,14 @@
         {
           "client_id": "697144327350-tfj1samafd502dhdfa4ngthr6obqqd5g.apps.googleusercontent.com",
           "client_type": 3
+        },
+        {
+          "client_id": "697144327350-fheijn6o7iqtnv5q1a793gbtfiu579dd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yapper.Yapper",
+            "certificate_hash": "a7ca2ede1d72b92c9fbdc69ac4aae70f312053a9"
+          }
         }
       ],
       "api_key": [

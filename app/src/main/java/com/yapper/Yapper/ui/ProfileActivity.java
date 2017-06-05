@@ -22,7 +22,6 @@ public class ProfileActivity extends AppCompatActivity {
     private DatabaseReference profile_root;
     private TextView user_name_textview;
     private TextView email_textview;
-    private TextView description_textview;
     private ImageView profile_image_imageview;
 
     @Override
@@ -31,7 +30,6 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
         user_name_textview = (TextView) findViewById(R.id.UserNameText);
         email_textview = (TextView) findViewById(R.id.EmailText);
-        description_textview = (TextView) findViewById(R.id.DescriptionText);
         profile_image_imageview = (ImageView) findViewById(R.id.ProfileImage);
 
         Bundle extras = getIntent().getExtras();
@@ -53,8 +51,6 @@ public class ProfileActivity extends AppCompatActivity {
                     Picasso.with(ProfileActivity.this).load(picture).into(profile_image_imageview);
                 }
 
-                //String description = (String) dataSnapshot.child("").getValue();
-                //description_textview.setText(description);
             }
 
             @Override
@@ -62,8 +58,4 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
-    public void sendMessage(View view){
-        Intent intent = new Intent(this, ChatRoom.class);
-        startActivity(intent);
-    }
 }
