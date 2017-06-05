@@ -11,6 +11,7 @@ class InstanceIdService : FirebaseInstanceIdService() {
 
     override fun onTokenRefresh() {
         super.onTokenRefresh()
+        val appId = FirebaseInstanceId.getInstance().id
         val instanceId = FirebaseInstanceId.getInstance().token
         Log.d("@@@@", "onTokenRefresh: " + instanceId!!)
         val firebaseUser = FirebaseAuth.getInstance().currentUser
@@ -18,7 +19,8 @@ class InstanceIdService : FirebaseInstanceIdService() {
             FirebaseDatabase.getInstance().reference
                     .child("users")
                     .child(firebaseUser.uid)
-                    .child("instance_id")
+                    .child("instance_ids")
+                    .child(appId)
                     .setValue(instanceId)
         }
     }

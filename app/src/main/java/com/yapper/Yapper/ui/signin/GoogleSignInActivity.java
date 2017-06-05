@@ -152,6 +152,19 @@ public class GoogleSignInActivity extends BaseActivity implements
                                     if (snapshot.exists()) {
                                         // UserID already exists in database
                                         Log.d(TAG, "USERID EXISTS");
+
+                                        // Add instanceID
+                                        String appId = FirebaseInstanceId.getInstance().getId();
+                                        String instanceId = FirebaseInstanceId.getInstance().getToken();
+                                        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                                        if (instanceId != null && firebaseUser != null) {
+                                            FirebaseDatabase.getInstance().getReference()
+                                                    .child("users")
+                                                    .child(firebaseUser.getUid())
+                                                    .child("instance_ids")
+                                                    .child(appId)
+                                                    .setValue(instanceId);
+                                        }
                                     }
                                     else {
                                         // UserID DOES NOT exist in database
@@ -238,17 +251,18 @@ public class GoogleSignInActivity extends BaseActivity implements
 
     private void addUserToDatabase(FirebaseUser firebaseUser, String username) {
 
+        String appId = FirebaseInstanceId.getInstance().getId();
         String instanceId = FirebaseInstanceId.getInstance().getToken();
         if (instanceId != null) {
             User user = new User(
                 firebaseUser.getDisplayName() == null ? "" : firebaseUser.getDisplayName(), // full_name
                 username == null ? "" : username, // user_name
                 firebaseUser.getEmail() == null ? "" : firebaseUser.getEmail(), // email
-                firebaseUser.getPhotoUrl() == null ? "" : firebaseUser.getPhotoUrl().toString(), // full_name
-                instanceId
+                firebaseUser.getPhotoUrl() == null ? "" : firebaseUser.getPhotoUrl().toString() // full_name
             );
 
             databaseReference.child("users").child(firebaseUser.getUid()).setValue(user);
+            databaseReference.child("users").child(firebaseUser.getUid()).child("instance_ids").child(appId).setValue(instanceId);
         }
     }
 

@@ -65,7 +65,7 @@ exports.getSubscribedChatrooms = functions.https.onRequest((req, res) => {
   // Parse Query String
   const user_id = req.query.user_id;
 
-  admin.database().ref(`/users/${user_id}/subscribed`).orderByKey().once('value').then(snapshot => {
+  admin.database().ref(`/users/${user_id}/subscribed`).once('value').then(snapshot => {
     // loop over each subscribed and push chatroom key into array
     var subscribed_chatrooms_ids = [];
     snapshot.forEach(childSnapshot => {
@@ -109,37 +109,39 @@ exports.sendNotification = functions.database.ref('/chatrooms/{roomId}/messages/
     const roomId = event.params.roomId;
 
     // get all users subscribed to chatroom
-    return admin.database().ref(`/chatrooms/${roomId}/subscribers`).orderByKey().once('value').then(snapshot => {
+    return admin.database().ref(`/chatrooms/${roomId}/subscribers`).once('value').then(snapshot => {
       snapshot.forEach(childSnapshot => {
         const subscriberId = childSnapshot.key;
         const subscriberName = childSnapshot.val();
 
         if(subscriberId !== senderId) {
-          // get instance ID for subscriber
-          admin.database().ref(`/users/${subscriberId}`).once('value').then(subscriberSnapshot => {
-            const subscriberInstanceId = subscriberSnapshot.val().instance_id;
+          // get instance IDs for subscriber
+          admin.database().ref(`/users/${subscriberId}/instance_ids`).once('value').then(instanceIdsSnapshot => {
+            instanceIdsSnapshot.forEach(instanceIdSnapshot => {
+              const subscriberInstanceId = instanceIdSnapshot.val();
 
-            // send notification to subscriber's instance ID
-            console.log('notifying ' + subscriberInstanceId + ' about ' + messageBody + ' from ' + senderName);
+              // send notification to subscriber's instance ID
+              console.log('notifying ' + subscriberInstanceId + ' about ' + messageBody + ' from ' + senderName);
 
-            const payload = {
-              data: {
-                ROOM_ID_KEY: roomId
-              },
-              notification: {
-                title: senderName,
-                body: messageBody,
-                click_action: "ACTIVITY_CHATROOM"
-              }
-            };
+              const payload = {
+                data: {
+                  ROOM_ID_KEY: roomId
+                },
+                notification: {
+                  title: senderName,
+                  body: messageBody,
+                  click_action: "ACTIVITY_CHATROOM"
+                }
+              };
 
-            admin.messaging().sendToDevice(subscriberInstanceId, payload)
-              .then(function (response) {
-                console.log("Successfully sent message:", response);
-              })
-              .catch(function (error) {
-                console.log("Error sending message:", error);
-              });
+              admin.messaging().sendToDevice(subscriberInstanceId, payload)
+                .then(function (response) {
+                  console.log("Successfully sent message:", response);
+                })
+                .catch(function (error) {
+                  console.log("Error sending message:", error);
+                });
+            });
           });
         }
       });
