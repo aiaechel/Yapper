@@ -37,6 +37,9 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.widget.EditText;
 import java.lang.String;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.DatabaseError;
 
 /**
  * Demonstrate Firebase Authentication using a Google ID Token.
@@ -70,7 +73,7 @@ public class GoogleSignInActivity extends BaseActivity implements
         // Button listeners
         findViewById(R.id.sign_in_button).setOnClickListener(this);
         findViewById(R.id.sign_out_button).setOnClickListener(this);
-        findViewById(R.id.disconnect_button).setOnClickListener(this);
+//        findViewById(R.id.disconnect_button).setOnClickListener(this);
 
         // [START config_signin]
         // Configure Google Sign In
@@ -141,10 +144,26 @@ public class GoogleSignInActivity extends BaseActivity implements
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            // TODO: check if user exists in database already
-                            // Currently ALWAYS prompts for username input from user
-                            getUsername(user); // getUsername calls addUserToDatabase
+                            final FirebaseUser user = mAuth.getCurrentUser();
+
+                            databaseReference.child("users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot snapshot) {
+                                    if (snapshot.exists()) {
+                                        // UserID already exists in database
+                                        Log.d(TAG, "USERID EXISTS");
+                                    }
+                                    else {
+                                        // UserID DOES NOT exist in database
+                                        // Ask for username, then add user to databse
+                                        Log.d(TAG, "USERID DOES NOT EXIST");
+                                        getUsername(user); // getUsername + addUserToDatabase
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError firebaseError) { }
+                            });
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -265,8 +284,8 @@ public class GoogleSignInActivity extends BaseActivity implements
             signIn();
         } else if (i == R.id.sign_out_button) {
             signOut();
-        } else if (i == R.id.disconnect_button) {
-            revokeAccess();
+//        } else if (i == R.id.disconnect_button) {
+//            revokeAccess();
         }
     }
 }
