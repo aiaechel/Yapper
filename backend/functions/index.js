@@ -61,7 +61,10 @@ exports.getNearbyChatrooms = functions.https.onRequest((req, res) => {
 // Send notifications to users subscribed to chatroom
 exports.sendNotification = functions.database.ref('/chatrooms/{roomId}/messages/{messageId}')
   .onWrite(event => {
-    // TODO: Don't send notification on deletion
+    // Exit if the data is deleted.
+    if (!event.data.exists()) {
+      return;
+    }
 
     const message = event.data.current.val();
     const senderName = message.user_name;
