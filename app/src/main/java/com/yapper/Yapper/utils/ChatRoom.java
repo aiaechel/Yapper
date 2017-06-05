@@ -9,8 +9,10 @@ import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -29,13 +31,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.yapper.Yapper.R;
-import com.yapper.Yapper.models.chatrooms.Chatroom;
 import com.yapper.Yapper.ui.ProfileActivity;
 
 import org.jetbrains.annotations.Nullable;
-import org.joda.time.Instant;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -56,7 +55,50 @@ public class ChatRoom extends AppCompatActivity {
     private DatabaseReference chatrooms_root;
     private String temp_key;
 
-    private String user_id, username, room_id;
+    private String user_id, username, room_id, room_name;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        DatabaseReference room_subscribers = FirebaseDatabase.getInstance().getReference().child("chatrooms").child(room_id).child("subscribers");
+        DatabaseReference users = FirebaseDatabase.getInstance().getReference().child("users").child(user_id).child("subscribed");
+
+
+        switch (item.getItemId()) {
+            case R.id.subscribe:
+                // add user as subscribed to chatroom
+
+                Map<String, Object> id_and_username = new HashMap<String, Object>();
+                id_and_username.put(user_id, username);
+                room_subscribers.updateChildren(id_and_username);
+
+                //add chatroom to list of chatrooms they are subscribed to
+                Map<String, Object> id_and_room = new HashMap<String, Object>();
+                id_and_room.put(room_id, room_name);
+                users.updateChildren(id_and_room);
+
+                Toast.makeText(this, "Subscribed!", Toast.LENGTH_SHORT).show();
+
+                return true;
+
+            case R.id.unsubscribe:
+                //reverse operation of above case
+                room_subscribers.child(user_id).removeValue();
+                users.child(room_id).removeValue();
+
+                Toast.makeText(this, "Unsubscribed!", Toast.LENGTH_SHORT).show();
+
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,7 +130,8 @@ public class ChatRoom extends AppCompatActivity {
                 FirebaseDatabase.getInstance().getReference().child("chatrooms").child(room_id).child("room_name").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        setTitle((String) dataSnapshot.getValue());
+                        room_name = (String) dataSnapshot.getValue();
+                        setTitle(room_name);
                     }
 
                     @Override
@@ -105,17 +148,20 @@ public class ChatRoom extends AppCompatActivity {
                         temp_key = chatrooms_root.push().getKey();
                         chatrooms_root.updateChildren(messages);
 
-                        DatabaseReference message_root = chatrooms_root.child(temp_key);
-                        Map<String, Object> name_and_message = new HashMap<String, Object>();
-                        name_and_message.put("user_name", username);
-                        name_and_message.put("timestamp", System.currentTimeMillis());
-                        name_and_message.put("body", input_msg.getText().toString());
-                        name_and_message.put("user_id", user_id);
+                        //avoid blank inputs
+                        String msg = input_msg.getText().toString().trim();
+                        if(!msg.equals("")) {
+                            DatabaseReference message_root = chatrooms_root.child(temp_key);
+                            Map<String, Object> name_and_message = new HashMap<String, Object>();
+                            name_and_message.put("user_name", username);
+                            name_and_message.put("timestamp", System.currentTimeMillis());
+                            name_and_message.put("body", msg);
+                            name_and_message.put("user_id", user_id);
 
-                        message_root.updateChildren(name_and_message);
+                            message_root.updateChildren(name_and_message);
 
-                        input_msg.setText("");
-
+                            input_msg.setText("");
+                        }
                     }
                 });
 
@@ -173,15 +219,10 @@ public class ChatRoom extends AppCompatActivity {
 
         chat_msg = (String) dataSnapshot.child("body").getValue();
         Date date = new Date((Long) dataSnapshot.child("timestamp").getValue());
-        SimpleDateFormat formatter = new SimpleDateFormat("hh:mm a");
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd, hh:mm a");
         timestamp = formatter.format(date);
         chat_user_id = (String) dataSnapshot.child("user_id").getValue();
         chat_user_name = (String) dataSnapshot.child("user_name").getValue();
-
-        //avoid blank inputs
-        if(chat_msg.trim().equals("")) {
-            return;
-        }
 
         TextView text_view = new TextView(ChatRoom.this);
 
@@ -189,7 +230,6 @@ public class ChatRoom extends AppCompatActivity {
         SpannableString ss = new SpannableString(chat_user_name + " (" + timestamp + ")\n" + chat_msg);
         ss.setSpan(new MyClickableSpan(chat_user_id), 1, chat_user_name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-        //TODO: update UI for message stream
         text_view.setText(ss);
         text_view.setMovementMethod(LinkMovementMethod.getInstance());
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -222,9 +262,7 @@ public class ChatRoom extends AppCompatActivity {
         }
 
         public void onClick(View text_view) {
-            //TODO: go to new activity instead of toast
             start_profile_intent(user_id);
-            Toast.makeText(ChatRoom.this, user_id, Toast.LENGTH_SHORT).show();
         }
 
         @Override
