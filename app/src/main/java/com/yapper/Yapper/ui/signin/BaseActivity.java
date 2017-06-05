@@ -1,4 +1,4 @@
-package com.yapper.Yapper.ui;
+package com.yapper.Yapper.ui.signin;
 
 import com.yapper.Yapper.R;
 

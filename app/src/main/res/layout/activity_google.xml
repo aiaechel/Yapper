@@ -14,13 +14,13 @@
         android:gravity="center_horizontal"
         android:orientation="vertical">
 
-        <ImageView
-            style="@style/ThemeOverlay.FirebaseIcon"
-            android:id="@+id/google_icon"
-            android:contentDescription="@string/desc_firebase_lockup"
-            android:src="@mipmap/firebase_lockup_400"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+        <!--<ImageView-->
+            <!--style="@style/ThemeOverlay.FirebaseIcon"-->
+            <!--android:id="@+id/google_icon"-->
+            <!--android:contentDescription="@string/desc_firebase_lockup"-->
+            <!--android:src="@mipmap/firebase_lockup_400"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content" />-->
 
         <TextView
             android:id="@+id/title_text"
@@ -76,13 +76,15 @@
                 android:text="@string/sign_out"
                 android:theme="@style/ThemeOverlay.MyDarkButton" />
 
-            <Button
-                android:id="@+id/disconnect_button"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/disconnect"
-                android:theme="@style/ThemeOverlay.MyDarkButton" />
+            <!--<Button-->
+                <!--android:id="@+id/disconnect_button"-->
+                <!--android:layout_width="0dp"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_weight="1"-->
+                <!--android:text="@string/disconnect"-->
+                <!--android:theme="@style/ThemeOverlay.MyDarkButton" />-->
+
+
         </LinearLayout>
 
     </RelativeLayout>

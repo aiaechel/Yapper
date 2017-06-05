@@ -50,7 +50,7 @@ exports.getNearbyChatrooms = functions.https.onRequest((req, res) => {
       });
     });
 
-    // return json of data after resolve all promises
+    // return json of data after resolving all promises
     Promise.all(promises).then(function() {
       res.json(foundChatrooms);
     });
@@ -58,9 +58,49 @@ exports.getNearbyChatrooms = functions.https.onRequest((req, res) => {
 });
 
 
+// Retrieve subscribed chatrooms for a user ID
+// GET request using query string
+// Example: /getSubscribedChatrooms?user_id=9Vo2jlDxgMR3CgeLoDN1h4T9H492
+exports.getSubscribedChatrooms = functions.https.onRequest((req, res) => {
+  // Parse Query String
+  const user_id = req.query.user_id;
+
+  admin.database().ref(`/users/${user_id}/subscribed`).once('value').then(snapshot => {
+    // loop over each subscribed and push chatroom key into array
+    var subscribed_chatrooms_ids = [];
+    snapshot.forEach(childSnapshot => {
+      subscribed_chatrooms_ids.push(childSnapshot.key);
+    });
+
+    // once all chatroom keys retrieved, fetch data using promises
+    var subscribed_chatrooms_data = [];
+    var promises = subscribed_chatrooms_ids.map(function(key, index) {
+      // get chatroom data from ID
+      return admin.database().ref(`/chatrooms/${key}`).once('value').then(roomSnapshot => {
+        var room_id = roomSnapshot.key;
+        var data = roomSnapshot.val();
+
+        var data_json = {id: room_id, room_name: data.room_name, timestamp: data.timestamp, location: data.location};
+        subscribed_chatrooms_data.push(data_json);
+      });
+    });
+
+    // return json of data after resolving all promises
+    Promise.all(promises).then(function() {
+      res.json(subscribed_chatrooms_data);
+    });
+  });
+});
+
+
 // Send notifications to users subscribed to chatroom
 exports.sendNotification = functions.database.ref('/chatrooms/{roomId}/messages/{messageId}')
   .onWrite(event => {
+    // Exit if the data is deleted.
+    if (!event.data.exists()) {
+      return;
+    }
+
     const message = event.data.current.val();
     const senderName = message.user_name;
     const messageBody = message.body;
@@ -69,38 +109,41 @@ exports.sendNotification = functions.database.ref('/chatrooms/{roomId}/messages/
     const roomId = event.params.roomId;
 
     // get all users subscribed to chatroom
-    return admin.database().ref(`/users/${senderId}`).once('value').then(senderSnapshot => {
-      const senderPhoto = senderSnapshot.val().photo_url;
+    return admin.database().ref(`/chatrooms/${roomId}/subscribers`).once('value').then(snapshot => {
+      snapshot.forEach(childSnapshot => {
+        const subscriberId = childSnapshot.key;
+        const subscriberName = childSnapshot.val();
 
-      admin.database().ref(`/chatrooms/${roomId}/subscribers`).orderByKey().once('value').then(snapshot => {
-        snapshot.forEach(childSnapshot => {
-          const subscriberId = childSnapshot.key;
-          const subscriberName = childSnapshot.val().user_name;
+        if(subscriberId !== senderId) {
+          // get instance IDs for subscriber
+          admin.database().ref(`/users/${subscriberId}/instance_ids`).once('value').then(instanceIdsSnapshot => {
+            instanceIdsSnapshot.forEach(instanceIdSnapshot => {
+              const subscriberInstanceId = instanceIdSnapshot.val();
 
-          // get instance ID for subscriber
-          admin.database().ref(`/users/${subscriberId}`).once('value').then(subscriberSnapshot => {
-            const subscriberInstanceId = subscriberSnapshot.val().instance_id;
+              // send notification to subscriber's instance ID
+              console.log('notifying ' + subscriberInstanceId + ' about ' + messageBody + ' from ' + senderName);
 
-            // send notification to subscriber's instance ID
-            console.log('notifying ' + subscriberInstanceId + ' about ' + messageBody + ' from ' + senderName);
+              const payload = {
+                data: {
+                  ROOM_ID_KEY: roomId
+                },
+                notification: {
+                  title: senderName,
+                  body: messageBody,
+                  click_action: "ACTIVITY_CHATROOM"
+                }
+              };
 
-            const payload = {
-              notification: {
-                title: subscriberName,
-                body: messageBody,
-                icon: senderPhoto
-              }
-            };
-
-            admin.messaging().sendToDevice(subscriberInstanceId, payload)
-              .then(function (response) {
-                console.log("Successfully sent message:", response);
-              })
-              .catch(function (error) {
-                console.log("Error sending message:", error);
-              });
+              admin.messaging().sendToDevice(subscriberInstanceId, payload)
+                .then(function (response) {
+                  console.log("Successfully sent message:", response);
+                })
+                .catch(function (error) {
+                  console.log("Error sending message:", error);
+                });
+            });
           });
-        });
+        }
       });
     });
   });

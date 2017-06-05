@@ -32,15 +32,19 @@
 
 
         <activity android:name=".utils.ChatRoom"
-                  android:label=""
-                  />
+                  android:label="" >
+            <intent-filter>
+                <action android:name="ACTIVITY_CHATROOM" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <activity
-            android:name="com.yapper.Yapper.ui.GoogleSignInActivity"
+            android:name="com.yapper.Yapper.ui.signin.GoogleSignInActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name="com.yapper.Yapper.ui.BaseActivity"
+            android:name="com.yapper.Yapper.ui.signin.BaseActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
@@ -49,6 +53,33 @@
             android:label="Create a Chatroom"
             android:theme="@style/AppTheme"
             />
+
+        <!-- Firebase Cloud Messaging Services -->
+        <service
+            android:name="com.yapper.Yapper.fcm.InstanceIdService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="com.yapper.Yapper.fcm.MessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
+        <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
+            See README(https://goo.gl/l4GJaQ) for more. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_ic_notification" />
+        <!-- Set color used with incoming notification messages. This is used when no color is set for the incoming
+             notification message. See README(https://goo.gl/6BKBk7) for more. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorAccent" />
+
     </application>
 
 </manifest>
