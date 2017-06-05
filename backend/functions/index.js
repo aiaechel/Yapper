@@ -16,12 +16,13 @@ exports.saveChatroomToGeofire = functions.database.ref('/chatrooms/{pushId}/loca
 
 // Take the json location and radius within body and retrive all nearby chatrooms
 // GET request using query string
-// Example: /getNearbyChatrooms?lat=-57.030000&lng=34.120000&rad=5
+// Example: /getNearbyChatrooms?lat=34.120000&lng=-118.030000&rad=5&user_id=3Cd3Ofde78hpg8mMsqTv5i2UB4M2
 exports.getNearbyChatrooms = functions.https.onRequest((req, res) => {
   // Parse Query String
   const latitude = parseFloat(req.query.lat);
   const longitude = parseFloat(req.query.lng);
   const radius = parseFloat(req.query.rad);
+  const user_id = req.query.user_id;
 
   var geoQuery = geoFire.query({
     center: [latitude, longitude],
@@ -45,8 +46,15 @@ exports.getNearbyChatrooms = functions.https.onRequest((req, res) => {
         var room_id = snapshot.key;
         var data = snapshot.val();
 
-        var data_json = {id: room_id, room_name: data.room_name, timestamp: data.timestamp, location: data.location};
-        foundChatrooms.push(data_json);
+        return admin.database().ref(`/chatrooms/${key}/subscribers/${user_id}`).once('value').then(subscriberSnapshot => {
+          var is_subscribed = false;
+          if(subscriberSnapshot.exists()) {
+            is_subscribed = true;
+          }
+
+          var data_json = {id: room_id, room_name: data.room_name, timestamp: data.timestamp, location: data.location, is_subscribed: is_subscribed};
+          foundChatrooms.push(data_json);
+        });
       });
     });
 
