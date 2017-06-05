@@ -30,8 +30,12 @@
 
 
         <activity android:name=".utils.ChatRoom"
-                  android:label=""
-                  />
+                  android:label="" >
+            <intent-filter>
+                <action android:name="ACTIVITY_CHATROOM" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name="com.yapper.Yapper.ui.signin.GoogleSignInActivity"

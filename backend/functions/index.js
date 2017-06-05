@@ -123,9 +123,13 @@ exports.sendNotification = functions.database.ref('/chatrooms/{roomId}/messages/
             console.log('notifying ' + subscriberInstanceId + ' about ' + messageBody + ' from ' + senderName);
 
             const payload = {
+              data: {
+                ROOM_ID_KEY: roomId
+              },
               notification: {
                 title: senderName,
-                body: messageBody
+                body: messageBody,
+                click_action: "ACTIVITY_CHATROOM"
               }
             };
 
