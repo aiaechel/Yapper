@@ -1,4 +1,4 @@
-package com.yapper.Yapper.ui;
+package com.yapper.Yapper.ui.signin;
 
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +30,16 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
+
+import android.widget.Button;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.widget.EditText;
+import java.lang.String;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.DatabaseError;
 
 /**
  * Demonstrate Firebase Authentication using a Google ID Token.
@@ -62,7 +73,7 @@ public class GoogleSignInActivity extends BaseActivity implements
         // Button listeners
         findViewById(R.id.sign_in_button).setOnClickListener(this);
         findViewById(R.id.sign_out_button).setOnClickListener(this);
-        findViewById(R.id.disconnect_button).setOnClickListener(this);
+//        findViewById(R.id.disconnect_button).setOnClickListener(this);
 
         // [START config_signin]
         // Configure Google Sign In
@@ -82,6 +93,7 @@ public class GoogleSignInActivity extends BaseActivity implements
         // [END initialize_auth]
 
         databaseReference = FirebaseDatabase.getInstance().getReference();
+
     }
 
     // [START on_start_check_user]
@@ -132,8 +144,26 @@ public class GoogleSignInActivity extends BaseActivity implements
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            addUserToDatabase(user);
+                            final FirebaseUser user = mAuth.getCurrentUser();
+
+                            databaseReference.child("users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot snapshot) {
+                                    if (snapshot.exists()) {
+                                        // UserID already exists in database
+                                        Log.d(TAG, "USERID EXISTS");
+                                    }
+                                    else {
+                                        // UserID DOES NOT exist in database
+                                        // Ask for username, then add user to databse
+                                        Log.d(TAG, "USERID DOES NOT EXIST");
+                                        getUsername(user); // getUsername + addUserToDatabase
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError firebaseError) { }
+                            });
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -186,12 +216,33 @@ public class GoogleSignInActivity extends BaseActivity implements
                 });
     }
 
-    private void addUserToDatabase(FirebaseUser firebaseUser) {
+    private void getUsername(final FirebaseUser firebaseUser) {
+        View view = (LayoutInflater.from(GoogleSignInActivity.this)).inflate(R.layout.user_name_input, null);
+
+        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(GoogleSignInActivity.this);
+        alertBuilder.setView(view);
+        final EditText userInput = (EditText) view.findViewById(R.id.user_name_input_box);
+
+        alertBuilder.setCancelable(true)
+                .setPositiveButton("Done", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        addUserToDatabase(firebaseUser, userInput.getText().toString());
+                    }
+                });
+
+        Dialog dialog = alertBuilder.create();
+        dialog.show();
+    }
+
+    private void addUserToDatabase(FirebaseUser firebaseUser, String username) {
+
         String instanceId = FirebaseInstanceId.getInstance().getToken();
         if (instanceId != null) {
             User user = new User(
                 firebaseUser.getDisplayName() == null ? "" : firebaseUser.getDisplayName(), // full_name
-                firebaseUser.getDisplayName() == null ? "" : firebaseUser.getDisplayName(), // user_name
+                username == null ? "" : username, // user_name
                 firebaseUser.getEmail() == null ? "" : firebaseUser.getEmail(), // email
                 firebaseUser.getPhotoUrl() == null ? "" : firebaseUser.getPhotoUrl().toString(), // full_name
                 instanceId
@@ -233,8 +284,8 @@ public class GoogleSignInActivity extends BaseActivity implements
             signIn();
         } else if (i == R.id.sign_out_button) {
             signOut();
-        } else if (i == R.id.disconnect_button) {
-            revokeAccess();
+//        } else if (i == R.id.disconnect_button) {
+//            revokeAccess();
         }
     }
 }
