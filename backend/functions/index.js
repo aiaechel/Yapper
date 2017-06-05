@@ -112,7 +112,7 @@ exports.sendNotification = functions.database.ref('/chatrooms/{roomId}/messages/
     return admin.database().ref(`/chatrooms/${roomId}/subscribers`).orderByKey().once('value').then(snapshot => {
       snapshot.forEach(childSnapshot => {
         const subscriberId = childSnapshot.key;
-        const subscriberName = childSnapshot.val().user_name;
+        const subscriberName = childSnapshot.val();
 
         if(subscriberId !== senderId) {
           // get instance ID for subscriber
