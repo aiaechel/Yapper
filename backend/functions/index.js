@@ -50,11 +50,46 @@ exports.getNearbyChatrooms = functions.https.onRequest((req, res) => {
       });
     });
 
-    // return json of data after resolve all promises
+    // return json of data after resolving all promises
     Promise.all(promises).then(function() {
       res.json(foundChatrooms);
     });
   })
+});
+
+
+// Retrieve subscribed chatrooms for a user ID
+// GET request using query string
+// Example: /getSubscribedChatrooms?user_id=9Vo2jlDxgMR3CgeLoDN1h4T9H492
+exports.getSubscribedChatrooms = functions.https.onRequest((req, res) => {
+  // Parse Query String
+  const user_id = req.query.user_id;
+
+  admin.database().ref(`/users/${user_id}/subscribed`).orderByKey().once('value').then(snapshot => {
+    // loop over each subscribed and push chatroom key into array
+    var subscribed_chatrooms_ids = [];
+    snapshot.forEach(childSnapshot => {
+      subscribed_chatrooms_ids.push(childSnapshot.key);
+    });
+
+    // once all chatroom keys retrieved, fetch data using promises
+    var subscribed_chatrooms_data = [];
+    var promises = subscribed_chatrooms_ids.map(function(key, index) {
+      // get chatroom data from ID
+      return admin.database().ref(`/chatrooms/${key}`).once('value').then(roomSnapshot => {
+        var room_id = roomSnapshot.key;
+        var data = roomSnapshot.val();
+
+        var data_json = {id: room_id, room_name: data.room_name, timestamp: data.timestamp, location: data.location};
+        subscribed_chatrooms_data.push(data_json);
+      });
+    });
+
+    // return json of data after resolving all promises
+    Promise.all(promises).then(function() {
+      res.json(subscribed_chatrooms_data);
+    });
+  });
 });
 
 
