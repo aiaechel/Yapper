@@ -15,6 +15,8 @@
 
         android:theme="@style/Theme.AppCompat.DayNight.DarkActionBar">
 
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCKyuPR8gSUGBpeBXZyfkPFCtaY07W4p60"/>
+
         <activity android:name=".ui.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -46,6 +48,11 @@
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
+        <activity
+            android:name=".ui.chatrooms.ChatroomCreateActivity"
+            android:label="Create a Chatroom"
+            android:theme="@style/AppTheme"
+            />
 
         <!-- Firebase Cloud Messaging Services -->
         <service

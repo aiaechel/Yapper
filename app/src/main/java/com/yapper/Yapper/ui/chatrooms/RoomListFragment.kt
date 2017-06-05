@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.yapper.Yapper.R
+import com.yapper.Yapper.models.chatrooms.Chatroom
 
 class RoomListFragment: LifecycleFragment() {
 
@@ -17,6 +18,8 @@ class RoomListFragment: LifecycleFragment() {
     private lateinit var viewmodel: ChatroomListViewModel
     private lateinit var listeners: ChatroomClickListeners
     private lateinit var adapter: RoomListAdapter
+
+    private var chatroomUpdate: Chatroom? = null
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
@@ -32,5 +35,17 @@ class RoomListFragment: LifecycleFragment() {
             adapter.updateItems(it)
         })
         return recyclerview
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (chatroomUpdate != null) {
+            adapter.insertItem(chatroomUpdate!!, 0)
+            chatroomUpdate = null
+        }
+    }
+
+    fun onChatroomCreated(room: Chatroom?) {
+        chatroomUpdate = room
     }
 }

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+<data>
+    <variable
+        name="viewmodel"
+        type="com.yapper.Yapper.ui.chatrooms.ChatroomFormViewModel" />
+</data>
+<android.support.design.widget.CoordinatorLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:elevation="4dp">
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/chatroom_creation_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?android:actionBarSize"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:titleTextColor="@android:color/white"
+            />
+    </android.support.design.widget.AppBarLayout>
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:padding="8dp">
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:counterEnabled="true"
+                app:counterMaxLength="@{viewmodel.maxCharacters}"
+                app:hintEnabled="true"
+                >
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/chatroom_creation_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:text="@={viewmodel.roomName}"
+                    android:hint="Chatroom Name"
+                    />
+            </android.support.design.widget.TextInputLayout>
+            <FrameLayout
+                android:id="@+id/chatroom_creation_map_container"
+                android:layout_width="match_parent"
+                android:layout_height="300dp">
+                <fragment
+                    android:id="@+id/chatroom_creation_map"
+                    android:name="com.google.android.gms.maps.SupportMapFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+                <Button
+                    android:id="@+id/chatroom_creation_pick_place"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:layout_gravity="bottom|right"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="Pick a place"
+                    />
+            </FrameLayout>
+            <Button
+                android:id="@+id/chatroom_creation_submit"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:enabled="@{viewmodel.validated}"
+                android:text="Submit"
+                />
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
+</android.support.design.widget.CoordinatorLayout>
+</layout>
