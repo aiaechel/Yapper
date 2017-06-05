@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.content.Intent;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.firebase.database.ChildEventListener;
@@ -22,8 +23,8 @@ public class ProfileActivity extends AppCompatActivity {
     private DatabaseReference profile_root;
     private TextView user_name_textview;
     private TextView email_textview;
-    private TextView description_textview;
     private ImageView profile_image_imageview;
+    private ScrollView chat_list_scrollview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,8 +32,8 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
         user_name_textview = (TextView) findViewById(R.id.UserNameText);
         email_textview = (TextView) findViewById(R.id.EmailText);
-        description_textview = (TextView) findViewById(R.id.DescriptionText);
         profile_image_imageview = (ImageView) findViewById(R.id.ProfileImage);
+        chat_list_scrollview = (ScrollView) findViewById(R.id.ChatList);
 
         Bundle extras = getIntent().getExtras();
         String user_id = getIntent().getExtras().getString("user_id");
@@ -53,8 +54,6 @@ public class ProfileActivity extends AppCompatActivity {
                     Picasso.with(ProfileActivity.this).load(picture).into(profile_image_imageview);
                 }
 
-                //String description = (String) dataSnapshot.child("").getValue();
-                //description_textview.setText(description);
             }
 
             @Override
