@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/chatroom_list_list"
+          android:title="Chatrooms"
+          android:icon="@drawable/ic_chat_black"
+          />
+    <item android:id="@+id/chatroom_list_maps"
+          android:title="Map"
+          android:icon="@drawable/ic_map" />
+</menu>

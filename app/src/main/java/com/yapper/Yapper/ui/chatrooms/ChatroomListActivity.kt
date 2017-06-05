@@ -1,6 +1,7 @@
 package com.yapper.Yapper.ui.chatrooms
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.arch.lifecycle.*
 import android.content.Intent
@@ -9,20 +10,22 @@ import android.databinding.DataBindingUtil
 import android.location.Location
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
-import android.util.Log
 import android.view.View
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.LocationSettingsStatusCodes
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.LatLng as GoogleLatLng
 import com.yapper.Yapper.R
 import com.yapper.Yapper.databinding.ChatroomListContainerBinding
 import com.yapper.Yapper.models.chatrooms.Chatroom
-import com.yapper.Yapper.models.chatrooms.LatLng
 import com.yapper.Yapper.network.chatrooms.GetChatroomsService
 import com.yapper.Yapper.utils.ChatRoom
 import com.yapper.Yapper.utils.ChatRoom.ROOM_ID_KEY
@@ -32,17 +35,19 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by BlankListeners() {
-
+class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by BlankListeners(), OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks {
     private val LOCATION_PERMISSION = 107
     private val LOCATION_SETTING = 5
     private val CHATROOM_CREATE_RESULT = 96;
 
     private val roomListFragment = RoomListFragment()
+    private val mapFragment = SupportMapFragment()
 
     private lateinit var binding: ChatroomListContainerBinding
     private lateinit var googleApiClient: GoogleApiClient
     private lateinit var viewModel: ChatroomListViewModel
+    private var googleMap: GoogleMap? = null
+    private var mapInit = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,8 +62,24 @@ class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by Blank
             startActivityForResult(Intent(this, ChatroomCreateActivity::class.java), CHATROOM_CREATE_RESULT)
         }
 
+        binding.chatroomListBottomnav.setOnNavigationItemSelectedListener {
+            with (supportFragmentManager.beginTransaction().hide(mapFragment).hide(roomListFragment)) {
+                show (when (it.itemId) {
+                    R.id.chatroom_list_list -> roomListFragment
+                    R.id.chatroom_list_maps -> mapFragment
+                    else -> roomListFragment
+                })
+                commit()
+                true
+            }
+        }
+
+        googleApiClient.registerConnectionCallbacks(this)
+
         supportFragmentManager.beginTransaction()
                 .add(R.id.chatroom_main_content, roomListFragment)
+                .add(R.id.chatroom_main_content, mapFragment)
+                .hide(mapFragment)
                 .commit()
 
         checkLocationPermission()
@@ -72,7 +93,7 @@ class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by Blank
                 CHATROOM_CREATE_RESULT -> {
                     val newRoom = data?.getParcelableExtra<Chatroom>("data")
                     if (newRoom != null) {
-                        viewModel.getChatrooms().value?.add(0, newRoom)
+                        viewModel.addChatroom(newRoom)
                         openChatroom(newRoom)
                     }
                 }
@@ -84,6 +105,35 @@ class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by Blank
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == LOCATION_PERMISSION && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
             checkLocationSettings()
+        }
+    }
+
+    override fun onConnectionSuspended(p0: Int) {}
+
+    override fun onConnected(p0: Bundle?) {
+        mapFragment.getMapAsync(this)
+    }
+
+    override fun onMapReady(map: GoogleMap?) {
+        googleMap = map
+
+        if (!mapInit) {
+            mapInit = true
+            googleMap?.setOnInfoWindowClickListener {
+                val chatroom = it.tag as? Chatroom
+                chatroom?.let {
+                    openChatroom(chatroom)
+                }
+            }
+
+            viewModel.getChatrooms().observe(this, Observer {
+                if (it != null) {
+                    addChatroomMarkers(it)
+                }
+            })
+            viewModel.getLocationListener(googleApiClient).observe(this, Observer {
+                moveMapLocation(it)
+            })
         }
     }
 
@@ -124,29 +174,63 @@ class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by Blank
             viewModel.loadChatrooms(it)
         })
     }
+
+    @SuppressLint("MissingPermission")
+    private fun moveMapLocation(location: Location?) {
+        if (location != null) {
+            val latlng = GoogleLatLng(location.latitude, location.longitude)
+            googleMap?.isMyLocationEnabled = true
+            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 15f))
+            viewModel.userMarker?.remove()
+            viewModel.userMarker = googleMap?.addMarker(with (MarkerOptions()) {
+                position(latlng)
+                icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                title("Your Location")
+            })
+        }
+    }
+
+    private fun addChatroomMarkers(chatrooms: List<Chatroom>) {
+        viewModel.chatroomMarkers.forEach {
+            it.remove()
+            viewModel.chatroomMarkers.remove(it)
+        }
+        chatrooms.forEach { chatroom ->
+            googleMap?.addMarker(with (MarkerOptions()) {
+                position(chatroom.location.asGoogleLatLng())
+                icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                title(chatroom.roomName)
+            })?.let {
+                it.tag = chatroom
+                viewModel.chatroomMarkers.add(it)
+            }
+        }
+
+    }
 }
 
 class ChatroomListViewModel: ViewModel() {
-    private val chatrooms: MutableLiveData<MutableList<Chatroom>> = MutableLiveData<MutableList<Chatroom>>()
+    private val chatrooms: MutableLiveData<List<Chatroom>> = MutableLiveData<List<Chatroom>>()
     private val chatroomsService: GetChatroomsService = RetrofitProvider.retrofit.create(GetChatroomsService::class.java)
 
     private var locationListener: LocationListener? = null
+    var userMarker: Marker? = null
+    var chatroomMarkers: MutableSet<Marker> = mutableSetOf()
 
     init {
         chatrooms.value = ArrayList<Chatroom>()
     }
 
-    fun getChatrooms(): LiveData<MutableList<Chatroom>> {
+    fun getChatrooms(): LiveData<List<Chatroom>> {
         return chatrooms
     }
 
     fun setChatrooms(rooms: List<Chatroom>?) {
-        chatrooms.value?.let {
-            with(it) {
-                clear()
-                addAll(rooms ?: emptyList())
-            }
-        }
+        chatrooms.value = rooms
+    }
+
+    fun addChatroom(room: Chatroom) {
+        chatrooms.value = listOf(room) + (chatrooms.value ?: emptyList())
     }
 
     fun getLocationListener(googleApiClient: GoogleApiClient): LocationListener {

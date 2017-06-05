@@ -189,9 +189,3 @@ class ChatroomFormViewModel: ViewModel() {
         return !trimmed.isEmpty() && trimmed.length <= maxCharacters
     }
 }
-
-data class ChatroomFirebaseModel(val location: com.yapper.Yapper.models.chatrooms.LatLng = com.yapper.Yapper.models.chatrooms.LatLng(0.0, 0.0),
-                                 val room_name: String = "",
-                                 val timestamp: Long = System.currentTimeMillis()) {
-
-}
