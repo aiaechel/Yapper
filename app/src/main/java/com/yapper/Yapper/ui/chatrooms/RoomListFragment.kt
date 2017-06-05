@@ -36,16 +36,4 @@ class RoomListFragment: LifecycleFragment() {
         })
         return recyclerview
     }
-
-    override fun onResume() {
-        super.onResume()
-        if (chatroomUpdate != null) {
-            adapter.insertItem(chatroomUpdate!!, 0)
-            chatroomUpdate = null
-        }
-    }
-
-    fun onChatroomCreated(room: Chatroom?) {
-        chatroomUpdate = room
-    }
 }
