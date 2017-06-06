@@ -133,7 +133,7 @@ exports.sendNotification = functions.database.ref('/chatrooms/{roomId}/messages/
 
               const payload = {
                 data: {
-                  ROOM_ID_KEY: roomId
+                  room_id: roomId
                 },
                 notification: {
                   title: senderName,
