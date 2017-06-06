@@ -144,7 +144,19 @@ class ChatroomListActivity: AppCompatActivity(), ChatroomClickListeners by Blank
     override fun onMapReady(map: GoogleMap?) {
         googleMap = map
 
-        if (!mapInit) {
+
+        initMap()
+    }
+
+    override fun onClicked(view: View) {
+        val chatroom = view.getTag() as Chatroom
+        openChatroom(chatroom)
+    }
+
+    override fun getLifecycle() = lifecycleRegistry
+
+    private fun initMap() {
+        if (!mapInit && isLocationPermissionGranted()) {
             mapInit = true
             googleMap?.setOnInfoWindowClickListener {
                 val chatroom = it.tag as? Chatroom
@@ -164,22 +176,17 @@ class ChatroomListActivity: AppCompatActivity(), ChatroomClickListeners by Blank
         }
     }
 
-    override fun onClicked(view: View) {
-        val chatroom = view.getTag() as Chatroom
-        openChatroom(chatroom)
-    }
-
-    override fun getLifecycle() = lifecycleRegistry
-
     private fun openChatroom(room: Chatroom) {
         val intent = Intent(this, ChatRoom::class.java)
         intent.putExtra(ROOM_ID_KEY, room.id)
         startActivity(intent)
     }
 
+    private fun isLocationPermissionGranted() = (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+
     private fun checkLocationPermission() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (!isLocationPermissionGranted()) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION), 107)
         } else {
             checkLocationSettings()
@@ -202,6 +209,8 @@ class ChatroomListActivity: AppCompatActivity(), ChatroomClickListeners by Blank
         viewModel.getLocationListener(googleApiClient).observe(this, Observer {
             viewModel.loadChatrooms(it)
         })
+
+        initMap()
     }
 
     @SuppressLint("MissingPermission")
@@ -222,19 +231,16 @@ class ChatroomListActivity: AppCompatActivity(), ChatroomClickListeners by Blank
     private fun addChatroomMarkers(chatrooms: List<Chatroom>) {
         viewModel.chatroomMarkers.forEach {
             it.remove()
-            viewModel.chatroomMarkers.remove(it)
         }
-        chatrooms.forEach { chatroom ->
-            googleMap?.addMarker(with (MarkerOptions()) {
+        viewModel.chatroomMarkers = chatrooms.map { chatroom ->
+            googleMap?.addMarker(with(MarkerOptions()) {
                 position(chatroom.location.asGoogleLatLng())
                 icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
                 title(chatroom.roomName)
-            })?.let {
+            })?.also {
                 it.tag = chatroom
-                viewModel.chatroomMarkers.add(it)
             }
-        }
-
+        }.filterNotNull()
     }
 }
 
@@ -244,7 +250,7 @@ class ChatroomListViewModel: ViewModel() {
 
     private var locationListener: LocationListener? = null
     var userMarker: Marker? = null
-    var chatroomMarkers: MutableSet<Marker> = mutableSetOf()
+    var chatroomMarkers: List<Marker> = emptyList()
 
     init {
         chatrooms.value = ArrayList<Chatroom>()
