@@ -8,11 +8,13 @@ import com.google.gson.annotations.SerializedName
 import com.yapper.Yapper.models.messages.Message
 
 data class Chatroom(@get:Exclude var id: String = "",
-                    @SerializedName("room_name") @get:Exclude @set:Exclude var roomName: String = "",
+                    @SerializedName("room_name") @get:Exclude var roomName: String = "",
+                    @SerializedName("is_subscribed") @get:Exclude var isSubscribed: Boolean = false,
                     var location: LatLng = LatLng(0.0, 0.0),
                     var timestamp: Long = System.currentTimeMillis(),
                     var messages: Map<String, Message> = emptyMap()) : Parcelable {
     fun getMessageList() = messages.toList()
+
     @PropertyName("room_name") fun getRoomNameFirebase() = roomName
 
     companion object {
@@ -25,6 +27,7 @@ data class Chatroom(@get:Exclude var id: String = "",
     constructor(source: Parcel) : this(
         source.readString(),
         source.readString(),
+        1 == source.readInt(),
         source.readParcelable<LatLng>(LatLng::class.java.classLoader),
         source.readLong()
     ) {
@@ -36,6 +39,7 @@ data class Chatroom(@get:Exclude var id: String = "",
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(id)
         dest.writeString(roomName)
+        dest.writeInt((if (isSubscribed) 1 else 0))
         dest.writeParcelable(location, 0)
         dest.writeLong(timestamp)
         dest.writeMap(messages)

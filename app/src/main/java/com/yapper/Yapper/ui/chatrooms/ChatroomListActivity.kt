@@ -38,6 +38,7 @@ import com.yapper.Yapper.utils.RetrofitProvider
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import com.google.android.gms.maps.model.LatLng as GoogleLatLng
 
 class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by BlankListeners(), OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks {
     private val LOCATION_PERMISSION = 107
@@ -273,8 +274,7 @@ class ChatroomListViewModel: ViewModel() {
 
     fun loadChatrooms(location: Location?) {
         location ?: return
-        // TODO: not default radius of 5
-        chatroomsService.getNearbyChatrooms(location.latitude, location.longitude, 5).enqueue(object : Callback<List<Chatroom>> {
+        chatroomsService.getNearbyChatrooms(lat = location.latitude, lng = location.longitude).enqueue(object : Callback<List<Chatroom>> {
 
             override fun onResponse(call: Call<List<Chatroom>>?, response: Response<List<Chatroom>>?) {
                 if (response?.isSuccessful ?: false) {
