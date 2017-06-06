@@ -10,6 +10,8 @@ import android.databinding.DataBindingUtil
 import android.location.Location
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationServices
@@ -22,11 +24,13 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.auth.FirebaseAuth
 import com.google.android.gms.maps.model.LatLng as GoogleLatLng
 import com.yapper.Yapper.R
 import com.yapper.Yapper.databinding.ChatroomListContainerBinding
 import com.yapper.Yapper.models.chatrooms.Chatroom
 import com.yapper.Yapper.network.chatrooms.GetChatroomsService
+import com.yapper.Yapper.ui.signin.GoogleSignInActivity
 import com.yapper.Yapper.utils.ChatRoom
 import com.yapper.Yapper.utils.ChatRoom.ROOM_ID_KEY
 import com.yapper.Yapper.utils.LocationListener
@@ -48,6 +52,23 @@ class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by Blank
     private lateinit var viewModel: ChatroomListViewModel
     private var googleMap: GoogleMap? = null
     private var mapInit = false
+
+//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+//        menuInflater.inflate(R.menu.menu_chatrooms_list, menu)
+//        return true
+//    }
+//
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        when (item.itemId) {
+//            R.id.login_status_button -> {
+//                val intent = Intent(this, GoogleSignInActivity::class.java)
+//                startActivity(intent)
+//                return true
+//            }
+//
+//            else -> return super.onOptionsItemSelected(item)
+//        }
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,6 +104,8 @@ class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by Blank
                 .commit()
 
         checkLocationPermission()
+
+        checkSignIn()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -146,6 +169,14 @@ class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by Blank
         val intent = Intent(this, ChatRoom::class.java)
         intent.putExtra(ROOM_ID_KEY, room.id)
         startActivity(intent)
+    }
+
+    private fun checkSignIn() {
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user == null) {
+            val intent = Intent(this, GoogleSignInActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun checkLocationPermission() {

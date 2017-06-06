@@ -40,6 +40,7 @@ import java.lang.String;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.DatabaseError;
+import com.yapper.Yapper.ui.chatrooms.ChatroomListActivity;
 
 /**
  * Demonstrate Firebase Authentication using a Google ID Token.
@@ -178,6 +179,7 @@ public class GoogleSignInActivity extends BaseActivity implements
                                 public void onCancelled(DatabaseError firebaseError) { }
                             });
                             updateUI(user);
+                            launchChatroomList();
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -281,6 +283,10 @@ public class GoogleSignInActivity extends BaseActivity implements
             findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
             findViewById(R.id.sign_out_and_disconnect).setVisibility(View.GONE);
         }
+    }
+
+    private void launchChatroomList() {
+        this.onBackPressed();
     }
 
     @Override
