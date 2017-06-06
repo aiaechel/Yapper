@@ -64,7 +64,7 @@ class ChatroomListActivity: AppCompatActivity(), ChatroomClickListeners by Blank
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.login_status_button -> {
+            R.id.sign_out_button -> {
                 FirebaseAuth.getInstance().signOut()
                 val intent = Intent(this, GoogleSignInActivity::class.java)
                 startActivity(intent)
