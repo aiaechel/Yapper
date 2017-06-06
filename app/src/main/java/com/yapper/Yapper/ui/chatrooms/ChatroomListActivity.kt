@@ -10,6 +10,7 @@ import android.databinding.DataBindingUtil
 import android.location.Location
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
+import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -38,15 +39,17 @@ import com.yapper.Yapper.utils.RetrofitProvider
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import com.google.android.gms.maps.model.LatLng as GoogleLatLng
 
-class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by BlankListeners(), OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks {
+class ChatroomListActivity: AppCompatActivity(), ChatroomClickListeners by BlankListeners(), OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, LifecycleRegistryOwner {
     private val LOCATION_PERMISSION = 107
     private val LOCATION_SETTING = 5
     private val CHATROOM_CREATE_RESULT = 96;
 
     private val roomListFragment = RoomListFragment()
     private val mapFragment = SupportMapFragment()
+    private val lifecycleRegistry by lazy {
+        LifecycleRegistry(this)
+    }
 
     private lateinit var binding: ChatroomListContainerBinding
     private lateinit var googleApiClient: GoogleApiClient
@@ -54,22 +57,22 @@ class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by Blank
     private var googleMap: GoogleMap? = null
     private var mapInit = false
 
-//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-//        menuInflater.inflate(R.menu.menu_chatrooms_list, menu)
-//        return true
-//    }
-//
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        when (item.itemId) {
-//            R.id.login_status_button -> {
-//                val intent = Intent(this, GoogleSignInActivity::class.java)
-//                startActivity(intent)
-//                return true
-//            }
-//
-//            else -> return super.onOptionsItemSelected(item)
-//        }
-//    }
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_chatrooms_list, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.login_status_button -> {
+                val intent = Intent(this, GoogleSignInActivity::class.java)
+                startActivity(intent)
+                return true
+            }
+
+            else -> return super.onOptionsItemSelected(item)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -165,6 +168,8 @@ class ChatroomListActivity: LifecycleActivity(), ChatroomClickListeners by Blank
         val chatroom = view.getTag() as Chatroom
         openChatroom(chatroom)
     }
+
+    override fun getLifecycle() = lifecycleRegistry
 
     private fun openChatroom(room: Chatroom) {
         val intent = Intent(this, ChatRoom::class.java)

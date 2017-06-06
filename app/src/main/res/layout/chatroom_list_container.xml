@@ -14,15 +14,6 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/chatroom_list_bottomnav"
             >
-            <android.support.design.widget.AppBarLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <android.support.v7.widget.Toolbar
-                    android:id="@+id/chatroom_list_toolbar"
-                    android:title="Chatrooms"
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize" />
-            </android.support.design.widget.AppBarLayout>
 
             <FrameLayout
                 android:id="@+id/chatroom_main_content"
