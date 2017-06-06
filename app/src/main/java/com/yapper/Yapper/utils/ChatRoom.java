@@ -123,7 +123,9 @@ public class ChatRoom extends AppCompatActivity {
         Intent args = getIntent();
         room_id = args.getStringExtra(ROOM_ID_KEY);
         if (room_id == null) {
-            room_id = "halp";
+            startActivity(new Intent(this, ChatroomListActivity.class));
+            finish();
+            return;
         }
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
