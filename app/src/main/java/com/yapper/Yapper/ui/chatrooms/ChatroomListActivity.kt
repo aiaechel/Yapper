@@ -108,8 +108,6 @@ class ChatroomListActivity: AppCompatActivity(), ChatroomClickListeners by Blank
                 .commit()
 
         checkLocationPermission()
-
-        checkSignIn()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -175,14 +173,6 @@ class ChatroomListActivity: AppCompatActivity(), ChatroomClickListeners by Blank
         val intent = Intent(this, ChatRoom::class.java)
         intent.putExtra(ROOM_ID_KEY, room.id)
         startActivity(intent)
-    }
-
-    private fun checkSignIn() {
-        val user = FirebaseAuth.getInstance().currentUser
-        if (user == null) {
-            val intent = Intent(this, GoogleSignInActivity::class.java)
-            startActivity(intent)
-        }
     }
 
     private fun checkLocationPermission() {

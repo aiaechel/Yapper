@@ -4,4 +4,5 @@
 
     <item
         android:id="@+id/login_status_button" android:icon="@drawable/common_google_signin_btn_icon_light" app:showAsAction="always" android:title="@string/sign_out"/>
+
 </menu>

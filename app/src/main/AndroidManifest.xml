@@ -17,17 +17,10 @@
 
         <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCKyuPR8gSUGBpeBXZyfkPFCtaY07W4p60"/>
 
-        <activity android:name=".ui.SplashActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>>
+        <activity android:name=".ui.SplashActivity"/>
 
         <activity android:name=".ui.chatrooms.ChatroomListActivity"
-            android:label="Chatrooms">
-
-        </activity>
+                  android:label="Chatrooms"/>
 
         <activity android:name=".ui.ProfileActivity"/>
 
@@ -40,9 +33,12 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name="com.yapper.Yapper.ui.signin.GoogleSignInActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+        <activity android:name="com.yapper.Yapper.ui.signin.GoogleSignInActivity"
+                  android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name="com.yapper.Yapper.ui.signin.BaseActivity"
