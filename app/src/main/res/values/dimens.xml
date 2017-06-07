@@ -8,7 +8,8 @@
 
     <dimen name="icon_top_margin">24dp</dimen>
     <dimen name="icon_bottom_margin">24dp</dimen>
-    <dimen name="title_bottom_margin">16dp</dimen>
+    <dimen name="title_bottom_margin">24dp</dimen>
+    <dimen name="title_top_margin">24dp</dimen>
     <dimen name="field_width_standard">160dp</dimen>
 
 </resources>
