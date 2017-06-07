@@ -13,6 +13,7 @@
     <string name="loading">Loading…</string>
 
     <!-- GoogleSignInActivity.java -->
+    <string name="app_logo_description">Yapper Logo</string>
     <string name="google_status_fmt">Google User: %s</string>
     <string name="firebase_status_fmt">Firebase User: %s</string>
     <string name="subscribed_chatrooms">Subscribed Chatrooms:</string>

@@ -22,6 +22,14 @@
             <!--android:layout_width="wrap_content"-->
             <!--android:layout_height="wrap_content" />-->
 
+        <ImageView
+            android:id="@+id/app_logo"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:layout_marginTop="@dimen/icon_top_margin"
+            android:src="@mipmap/ic_launcher"
+            android:contentDescription="@string/app_logo_description" />
+
         <TextView
             android:id="@+id/title_text"
             android:layout_width="wrap_content"
